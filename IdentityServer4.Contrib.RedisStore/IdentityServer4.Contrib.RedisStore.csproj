@@ -1,7 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.5</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Redis Store for operational data of Identity Server 4</Description>
+    <Authors>Ali Bazzi</Authors>
+    <Company>Ali Bazzi</Company>
+    <AssemblyVersion>0.9.0.0</AssemblyVersion>
+    <PackageReleaseNotes>Preview</PackageReleaseNotes>
+    <Version>0.9.0-preview</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityServer4" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="StackExchange.Redis" Version="1.2.6" />
+  </ItemGroup>
 
 </Project>
