@@ -39,7 +39,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                 var data = ConvertToJson(grant);
                 var grantKey = GetKey(grant.Key);
                 var setKey = GetSetKey(grant.SubjectId, grant.ClientId, grant.Type);
-                var expiresIn = DateTime.UtcNow - grant.Expiration;
+                var expiresIn = grant.Expiration - DateTime.UtcNow;
                 await Task.WhenAll(this.database.StringSetAsync(grantKey, data, expiresIn),
                                    this.database.SetAddAsync(GetSetKey(grant.SubjectId), grantKey),
                                    this.database.SetAddAsync(GetSetKey(grant.SubjectId, grant.ClientId), grantKey),
@@ -107,6 +107,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                 var setKey = GetSetKey(subjectId, clientId);
                 var grantsKeys = await this.database.SetMembersAsync(setKey);
                 logger.LogDebug($"removing {grantsKeys.Count()} persisted grants from database for subject {subjectId}, clientId {clientId}");
+                if (grantsKeys.Count() == 0) return;
                 await Task.WhenAll(
                     this.database.KeyDeleteAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).Concat(new RedisKey[] { setKey }).ToArray()),
                     this.database.SetRemoveAsync(GetSetKey(subjectId), grantsKeys));
@@ -124,6 +125,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                 var setKey = GetSetKey(subjectId, clientId, type);
                 var grantsKeys = await this.database.SetMembersAsync(setKey);
                 logger.LogDebug($"removing {grantsKeys.Count()} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}");
+                if (grantsKeys.Count() == 0) return;
                 await Task.WhenAll(
                     this.database.KeyDeleteAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).Concat(new RedisKey[] { setKey }).ToArray()),
                     this.database.SetRemoveAsync(GetSetKey(subjectId, clientId), grantsKeys),
