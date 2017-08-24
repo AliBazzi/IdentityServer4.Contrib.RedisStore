@@ -135,7 +135,6 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             {
                 logger.LogInformation($"exception removing persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}: {ex.Message}");
             }
-
         }
 
         #region Json
