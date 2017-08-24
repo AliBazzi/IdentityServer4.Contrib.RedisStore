@@ -1,3 +1,5 @@
+
+
 # IdentityServer4.Contrib.RedisStore
 
 IdentityServer4.Contrib.RedisStore is a persistance layer using [Redis](https://redis.io) DB for operational data of Identity Server 4. Specifically, this store provides implementation for [IPersistedGrantStore](http://docs.identityserver.io/en/release/topics/deployment.html#operational-data).
@@ -19,6 +21,21 @@ public void ConfigureServices(IServiceCollection services)
             services.AddIdentityServer()
                 .AddTemporarySigningCredential()
                 .AddOperationalStore(connectionString);
+        }
+```
+
+Or by passing ConfigurationOptions instance, which contains the configuration of Redis store:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+        {
+            var options = new ConfigurationOptions {  /* ... */ };
+            
+            services.AddMvc();
+
+            services.AddIdentityServer()
+                .AddTemporarySigningCredential()
+                .AddOperationalStore(options);
         }
 ```
 
