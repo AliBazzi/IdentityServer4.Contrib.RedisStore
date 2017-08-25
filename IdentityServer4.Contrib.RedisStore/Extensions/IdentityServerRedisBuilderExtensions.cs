@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IIdentityServerBuilder AddOperationalStore(this IIdentityServerBuilder builder, ConfigurationOptions options)
         {
             builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(options));
-            builder.Services.AddScoped<IDatabaseAsync>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase(options.DefaultDatabase.HasValue ? options.DefaultDatabase.Value : -1));
+            builder.Services.AddScoped<IDatabaseAsync>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
             builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
             return builder;
         }
