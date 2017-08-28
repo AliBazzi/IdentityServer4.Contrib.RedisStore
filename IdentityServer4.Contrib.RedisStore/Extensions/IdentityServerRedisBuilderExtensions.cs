@@ -16,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IIdentityServerBuilder AddOperationalStore(this IIdentityServerBuilder builder, string redisConnectionString, int db = -1)
         {
             builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
-            builder.Services.AddScoped<IDatabaseAsync>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase(db));
+            builder.Services.AddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase(db));
             builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
             return builder;
         }
@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IIdentityServerBuilder AddOperationalStore(this IIdentityServerBuilder builder, ConfigurationOptions options)
         {
             builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(options));
-            builder.Services.AddScoped<IDatabaseAsync>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
+            builder.Services.AddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
             builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
             return builder;
         }
