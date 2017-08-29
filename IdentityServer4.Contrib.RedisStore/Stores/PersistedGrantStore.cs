@@ -38,16 +38,23 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             {
                 var data = ConvertToJson(grant);
                 var grantKey = GetKey(grant.Key);
-                var setKey = GetSetKey(grant.SubjectId, grant.ClientId, grant.Type);
                 var expiresIn = grant.Expiration - DateTime.UtcNow;
-                var transaction = this.database.CreateTransaction();
-                transaction.StringSetAsync(grantKey, data, expiresIn);
-                transaction.SetAddAsync(GetSetKey(grant.SubjectId), grantKey);
-                transaction.SetAddAsync(GetSetKey(grant.SubjectId, grant.ClientId), grantKey);
-                transaction.SetAddAsync(setKey, grantKey);
-                transaction.KeyExpireAsync(setKey, expiresIn);
-                if (await transaction.ExecuteAsync())
-                    logger.LogDebug($"grant for subject {grant.SubjectId}, clientId {grant.ClientId}, grantType {grant.Type} persisted successfully");
+                if (!string.IsNullOrEmpty(grant.SubjectId))
+                {
+                    var setKey = GetSetKey(grant.SubjectId, grant.ClientId, grant.Type);
+                    var transaction = this.database.CreateTransaction();
+                    transaction.StringSetAsync(grantKey, data, expiresIn);
+                    transaction.SetAddAsync(GetSetKey(grant.SubjectId), grantKey);
+                    transaction.SetAddAsync(GetSetKey(grant.SubjectId, grant.ClientId), grantKey);
+                    transaction.SetAddAsync(setKey, grantKey);
+                    transaction.KeyExpireAsync(setKey, expiresIn);
+                    await transaction.ExecuteAsync();
+                }
+                else
+                {
+                    await this.database.StringSetAsync(grantKey, data, expiresIn);
+                }
+                logger.LogDebug($"grant for subject {grant.SubjectId}, clientId {grant.ClientId}, grantType {grant.Type} persisted successfully");
             }
             catch (Exception ex)
             {
