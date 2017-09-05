@@ -79,7 +79,8 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             var grants = await this.database.StringGetAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).ToArray());
             var keysToDelete = grantsKeys.Zip(grants, (key, value) => new KeyValuePair<RedisValue, RedisValue>(key, value))
                                          .Where(_ => !_.Value.HasValue).Select(_ => _.Key);
-            await this.database.SetRemoveAsync(setKey, keysToDelete.ToArray());
+            if (keysToDelete.Count() != 0)
+                await this.database.SetRemoveAsync(setKey, keysToDelete.ToArray());
             logger.LogDebug($"{grantsKeys.Count(_ => _.HasValue)} persisted grants found for {subjectId}");
             return grants.Where(_ => _.HasValue).Select(_ => ConvertFromJson(_));
         }

@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="redisConnectionString">Redis Store Connection String</param>
-        /// <param name="db">the number of Db in Redis Instance, default is 0</param>
+        /// <param name="db">the number of Db in Redis Instance</param>
         /// <returns></returns>
         public static IIdentityServerBuilder AddOperationalStore(this IIdentityServerBuilder builder, string redisConnectionString, int db = -1)
         {
