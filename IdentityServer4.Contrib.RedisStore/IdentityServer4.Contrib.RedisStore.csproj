@@ -6,11 +6,11 @@
     <Description>Redis Store for operational data of Identity Server 4</Description>
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
-    <AssemblyVersion>0.9.8.0</AssemblyVersion>
-    <PackageReleaseNotes>Preview</PackageReleaseNotes>
-    <Version>0.9.8-preview</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <PackageReleaseNotes>RTM</PackageReleaseNotes>
+    <Version>1.0.0</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
-    <PackageTags>Redis Store Identity Server 4</PackageTags>
+    <PackageTags>Redis Store IdentityServer4</PackageTags>
     <Copyright>Ali Bazzi</Copyright>
   </PropertyGroup>
 
