@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Description>Redis Store for operational data of Identity Server 4</Description>
+    <Description>Redis Store for operational data, and for Caching of Identity Server 4</Description>
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <PackageReleaseNotes>fix a problem related to StackExchange.Redis package, blocking the usage of library in Asp.Net core 2.</PackageReleaseNotes>
-    <Version>1.0.1</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <PackageReleaseNotes>Added implementation for ICache interface, to support caching of clients, resources and CORS policies.</PackageReleaseNotes>
+    <Version>1.2.0-beta</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
     <Copyright>Ali Bazzi</Copyright>

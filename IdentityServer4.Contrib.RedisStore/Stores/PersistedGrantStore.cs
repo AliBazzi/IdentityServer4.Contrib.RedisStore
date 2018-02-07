@@ -1,5 +1,6 @@
 ﻿using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -16,10 +17,13 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
 
         private readonly ILogger<PersistedGrantStore> logger;
 
-        public PersistedGrantStore(IDatabase database, ILogger<PersistedGrantStore> logger)
+        private ISystemClock clock;
+
+        public PersistedGrantStore(IDatabase database, ILogger<PersistedGrantStore> logger, ISystemClock clock)
         {
             this.database = database ?? throw new ArgumentNullException(nameof(database));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.clock = clock;
         }
 
         private static string GetKey(string key) => key;
@@ -38,7 +42,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             {
                 var data = ConvertToJson(grant);
                 var grantKey = GetKey(grant.Key);
-                var expiresIn = grant.Expiration - DateTime.UtcNow;
+                var expiresIn = grant.Expiration - this.clock.UtcNow;
                 if (!string.IsNullOrEmpty(grant.SubjectId))
                 {
                     var setKey = GetSetKey(grant.SubjectId, grant.ClientId, grant.Type);
@@ -48,11 +52,11 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                     transaction.SetAddAsync(GetSetKey(grant.SubjectId, grant.ClientId), grantKey);
                     transaction.SetAddAsync(setKey, grantKey);
                     transaction.KeyExpireAsync(setKey, expiresIn);
-                    await transaction.ExecuteAsync();
+                    await transaction.ExecuteAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    await this.database.StringSetAsync(grantKey, data, expiresIn);
+                    await this.database.StringSetAsync(grantKey, data, expiresIn).ConfigureAwait(false);
                 }
                 logger.LogDebug($"grant for subject {grant.SubjectId}, clientId {grant.ClientId}, grantType {grant.Type} persisted successfully");
             }
@@ -65,7 +69,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
 
         public async Task<PersistedGrant> GetAsync(string key)
         {
-            var data = await this.database.StringGetAsync(GetKey(key));
+            var data = await this.database.StringGetAsync(GetKey(key)).ConfigureAwait(false);
             logger.LogDebug($"{key} found in database: {data.HasValue}");
             return data.HasValue ? ConvertFromJson(data) : null;
         }
@@ -73,14 +77,14 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
         public async Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)
         {
             var setKey = GetSetKey(subjectId);
-            var grantsKeys = await this.database.SetMembersAsync(setKey);
+            var grantsKeys = await this.database.SetMembersAsync(setKey).ConfigureAwait(false);
             if (grantsKeys.Count() == 0)
                 return Enumerable.Empty<PersistedGrant>();
-            var grants = await this.database.StringGetAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).ToArray());
+            var grants = await this.database.StringGetAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).ToArray()).ConfigureAwait(false);
             var keysToDelete = grantsKeys.Zip(grants, (key, value) => new KeyValuePair<RedisValue, RedisValue>(key, value))
                                          .Where(_ => !_.Value.HasValue).Select(_ => _.Key);
             if (keysToDelete.Count() != 0)
-                await this.database.SetRemoveAsync(setKey, keysToDelete.ToArray());
+                await this.database.SetRemoveAsync(setKey, keysToDelete.ToArray()).ConfigureAwait(false);
             logger.LogDebug($"{grantsKeys.Count(_ => _.HasValue)} persisted grants found for {subjectId}");
             return grants.Where(_ => _.HasValue).Select(_ => ConvertFromJson(_));
         }
@@ -89,7 +93,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
         {
             try
             {
-                var grant = await this.GetAsync(key);
+                var grant = await this.GetAsync(key).ConfigureAwait(false);
                 if (grant == null)
                 {
                     logger.LogDebug($"no {key} persisted grant found in database");
@@ -102,7 +106,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                 transaction.SetRemoveAsync(GetSetKey(grant.SubjectId), grantKey);
                 transaction.SetRemoveAsync(GetSetKey(grant.SubjectId, grant.ClientId), grantKey);
                 transaction.SetRemoveAsync(GetSetKey(grant.SubjectId, grant.ClientId, grant.Type), grantKey);
-                await transaction.ExecuteAsync();
+                await transaction.ExecuteAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -116,13 +120,13 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             try
             {
                 var setKey = GetSetKey(subjectId, clientId);
-                var grantsKeys = await this.database.SetMembersAsync(setKey);
+                var grantsKeys = await this.database.SetMembersAsync(setKey).ConfigureAwait(false);
                 logger.LogDebug($"removing {grantsKeys.Count()} persisted grants from database for subject {subjectId}, clientId {clientId}");
                 if (grantsKeys.Count() == 0) return;
                 var transaction = this.database.CreateTransaction();
                 transaction.KeyDeleteAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).Concat(new RedisKey[] { setKey }).ToArray());
                 transaction.SetRemoveAsync(GetSetKey(subjectId), grantsKeys);
-                await transaction.ExecuteAsync();
+                await transaction.ExecuteAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -135,14 +139,14 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             try
             {
                 var setKey = GetSetKey(subjectId, clientId, type);
-                var grantsKeys = await this.database.SetMembersAsync(setKey);
+                var grantsKeys = await this.database.SetMembersAsync(setKey).ConfigureAwait(false);
                 logger.LogDebug($"removing {grantsKeys.Count()} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}");
                 if (grantsKeys.Count() == 0) return;
                 var transaction = this.database.CreateTransaction();
                 transaction.KeyDeleteAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).Concat(new RedisKey[] { setKey }).ToArray());
                 transaction.SetRemoveAsync(GetSetKey(subjectId, clientId), grantsKeys);
                 transaction.SetRemoveAsync(GetSetKey(subjectId), grantsKeys);
-                await transaction.ExecuteAsync();
+                await transaction.ExecuteAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {

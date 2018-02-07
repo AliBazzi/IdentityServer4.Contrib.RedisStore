@@ -2,7 +2,7 @@
 
 # IdentityServer4.Contrib.RedisStore
 
-IdentityServer4.Contrib.RedisStore is a persistance layer using [Redis](https://redis.io) DB for operational data of Identity Server 4. Specifically, this store provides implementation for [IPersistedGrantStore](http://docs.identityserver.io/en/release/topics/deployment.html#operational-data).
+IdentityServer4.Contrib.RedisStore is a persistance layer using [Redis](https://redis.io) DB for operational data of Identity Server 4. Specifically, this store provides implementation for [IPersistedGrantStore](http://docs.identityserver.io/en/release/topics/deployment.html#operational-data) and [ICache<T>](http://docs.identityserver.io/en/release/topics/startup.html#caching).
 
 
 ## How to use
@@ -20,7 +20,8 @@ public void ConfigureServices(IServiceCollection services)
 
             services.AddIdentityServer()
                 .AddTemporarySigningCredential()
-                .AddOperationalStore(connectionString);
+                .AddOperationalStore(connectionString, db = 0)
+                .AddRedisCaching(connectionString, db = 1);
         }
 ```
 
@@ -29,15 +30,20 @@ Or by passing ConfigurationOptions instance, which contains the configuration of
 ```csharp
 public void ConfigureServices(IServiceCollection services)
         {
-            var options = new ConfigurationOptions {  /* ... */ };
-            
+            var operationalStoreOptions = new ConfigurationOptions {  /* ... */ };
+            var cacheOptions = new ConfigurationOptions {  /* ... */ };
             services.AddMvc();
 
             services.AddIdentityServer()
                 .AddTemporarySigningCredential()
-                .AddOperationalStore(options);
+                .AddOperationalStore(operationalStoreOptions)
+                .AddRedisCaching(cacheOptions);
         }
 ```
+
+#####Note: 
+
+operational store and caching are not related, you can use them separately or combined, it's totally fine.
 
 ## the solution approach
 
