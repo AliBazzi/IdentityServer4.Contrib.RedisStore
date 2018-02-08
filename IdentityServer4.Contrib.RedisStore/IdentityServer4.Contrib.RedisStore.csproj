@@ -8,7 +8,7 @@
     <Company>Ali Bazzi</Company>
     <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <PackageReleaseNotes>Added implementation for ICache interface, to support caching of clients, resources and CORS policies.</PackageReleaseNotes>
-    <Version>1.2.0-beta</Version>
+    <Version>1.2.0-beta2</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
     <Copyright>Ali Bazzi</Copyright>

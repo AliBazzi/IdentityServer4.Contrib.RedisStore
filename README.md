@@ -2,7 +2,7 @@
 
 # IdentityServer4.Contrib.RedisStore
 
-IdentityServer4.Contrib.RedisStore is a persistance layer using [Redis](https://redis.io) DB for operational data of Identity Server 4. Specifically, this store provides implementation for [IPersistedGrantStore](http://docs.identityserver.io/en/release/topics/deployment.html#operational-data) and [ICache<T>](http://docs.identityserver.io/en/release/topics/startup.html#caching).
+IdentityServer4.Contrib.RedisStore is a persistence layer using [Redis](https://redis.io) DB for operational data and for caching capability for Identity Server 4. Specifically, this store provides implementation for [IPersistedGrantStore](http://docs.identityserver.io/en/release/topics/deployment.html#operational-data) and [ICache<T>](http://docs.identityserver.io/en/release/topics/startup.html#caching).
 
 
 ## How to use
@@ -15,13 +15,12 @@ then you can inject the stores in the Identity Server 4 Configuration at startup
 public void ConfigureServices(IServiceCollection services)
         {
             const string connectionString = @"---redis store connection string---";
-            
-            services.AddMvc();
 
             services.AddIdentityServer()
                 .AddTemporarySigningCredential()
-                .AddOperationalStore(connectionString, db = 0)
-                .AddRedisCaching(connectionString, db = 1);
+                ...
+                .AddOperationalStore(connectionString, db: 0)
+                .AddRedisCaching(connectionString, db: 1);
         }
 ```
 
@@ -36,14 +35,39 @@ public void ConfigureServices(IServiceCollection services)
 
             services.AddIdentityServer()
                 .AddTemporarySigningCredential()
+                ...
                 .AddOperationalStore(operationalStoreOptions)
                 .AddRedisCaching(cacheOptions);
         }
 ```
 
-#####Note: 
+don't forget to register the caching for specific configuration store you like to apply the caching on, like the following:
 
-operational store and caching are not related, you can use them separately or combined, it's totally fine.
+```csharp
+public void ConfigureServices(IServiceCollection services)
+        {
+            var operationalStoreOptions = new ConfigurationOptions {  /* ... */ };
+            var cacheOptions = new ConfigurationOptions {  /* ... */ };
+
+            services.AddIdentityServer()
+                .AddTemporarySigningCredential()
+                .AddConfigurationStore(options =>
+            	{
+                	options.ConfigureDbContext = ... ;
+            	})
+                ...
+                .AddRedisCaching(cacheOptions)
+                .AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
+            	.AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>();
+        }
+
+```
+
+In this previous snippet, registration of caching capability are added for Client Store and Resource Store, and it's registered it for Entity Framework stores in this case, but if you have your own Stores you should register them here in order to allow the caching for these specific stores.  
+
+###### Note
+
+operational store and caching are not related, you can use them separately or combined.
 
 ## the solution approach
 

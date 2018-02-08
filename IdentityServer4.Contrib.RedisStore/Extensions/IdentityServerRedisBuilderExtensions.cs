@@ -2,6 +2,7 @@
 using IdentityServer4.Contrib.RedisStore.Stores;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using StackExchange.Redis;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -17,9 +18,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public static IIdentityServerBuilder AddOperationalStore(this IIdentityServerBuilder builder, string redisConnectionString, int db = -1)
         {
-            builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
-            builder.Services.AddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase(db));
-            builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
+            builder.Services.TryAddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
+            builder.Services.TryAddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase(db));
+            builder.Services.TryAddTransient<IPersistedGrantStore, PersistedGrantStore>();
             return builder;
         }
 
@@ -31,9 +32,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public static IIdentityServerBuilder AddOperationalStore(this IIdentityServerBuilder builder, ConfigurationOptions options)
         {
-            builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(options));
-            builder.Services.AddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
-            builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
+            builder.Services.TryAddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(options));
+            builder.Services.TryAddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
+            builder.Services.TryAddTransient<IPersistedGrantStore, PersistedGrantStore>();
             return builder;
         }
 
@@ -46,9 +47,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public static IIdentityServerBuilder AddRedisCaching(this IIdentityServerBuilder builder, string redisConnectionString, int db = -1)
         {
-            builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
-            builder.Services.AddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase(db));
-            builder.Services.AddTransient(typeof(ICache<>), typeof(RedisCache<>));
+            builder.Services.TryAddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisConnectionString));
+            builder.Services.TryAddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase(db));
+            builder.Services.TryAddTransient(typeof(ICache<>), typeof(RedisCache<>));
             return builder;
         }
 
@@ -60,9 +61,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public static IIdentityServerBuilder AddRedisCaching(this IIdentityServerBuilder builder, ConfigurationOptions options)
         {
-            builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(options));
-            builder.Services.AddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
-            builder.Services.AddTransient(typeof(ICache<>), typeof(RedisCache<>));
+            builder.Services.TryAddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(options));
+            builder.Services.TryAddScoped<IDatabase>(_ => _.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
+            builder.Services.TryAddTransient(typeof(ICache<>), typeof(RedisCache<>));
             return builder;
         }
     }
