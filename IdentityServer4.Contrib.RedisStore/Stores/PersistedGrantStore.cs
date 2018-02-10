@@ -11,28 +11,36 @@ using System.Threading.Tasks;
 
 namespace IdentityServer4.Contrib.RedisStore.Stores
 {
+    /// <summary>
+    /// Provides the implementation of IPersistedGrantStore for Redis Cache.
+    /// </summary>
     public class PersistedGrantStore : IPersistedGrantStore
     {
+        private readonly RedisConfigurationStoreOptions options;
+
         private readonly IDatabase database;
 
         private readonly ILogger<PersistedGrantStore> logger;
 
         private ISystemClock clock;
 
-        public PersistedGrantStore(IDatabase database, ILogger<PersistedGrantStore> logger, ISystemClock clock)
+        public PersistedGrantStore(RedisMultiplexer<RedisConfigurationStoreOptions> multiplexer, ILogger<PersistedGrantStore> logger, ISystemClock clock)
         {
-            this.database = database ?? throw new ArgumentNullException(nameof(database));
+            if (multiplexer is null)
+                throw new ArgumentNullException(nameof(multiplexer));
+            this.options = multiplexer.RedisOptions;
+            this.database = multiplexer.Database;
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.clock = clock;
         }
 
-        private static string GetKey(string key) => key;
+        private string GetKey(string key) => $"{this.options.KeyPrefix}{key}";
 
-        private static string GetSetKey(string subjectId) => subjectId;
+        private string GetSetKey(string subjectId) => $"{this.options.KeyPrefix}{subjectId}";
 
-        private static string GetSetKey(string subjectId, string clientId) => $"{subjectId}:{clientId}";
+        private string GetSetKey(string subjectId, string clientId) => $"{this.options.KeyPrefix}{subjectId}:{clientId}";
 
-        private static string GetSetKey(string subjectId, string clientId, string type) => $"{subjectId}:{clientId}:{type}";
+        private string GetSetKey(string subjectId, string clientId, string type) => $"{this.options.KeyPrefix}{subjectId}:{clientId}:{type}";
 
         public async Task StoreAsync(PersistedGrant grant)
         {

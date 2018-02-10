@@ -16,15 +16,20 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
     {
         private readonly IDatabase database;
 
+        private readonly RedisCacheOptions options;
+
         private readonly ILogger<RedisCache<T>> logger;
 
-        private static string GetKey(string key) => $"{typeof(T).FullName}:{key}";
-
-        public RedisCache(IDatabase database, ILogger<RedisCache<T>> logger)
+        public RedisCache(RedisMultiplexer<RedisCacheOptions> multiplexer, ILogger<RedisCache<T>> logger)
         {
-            this.database = database ?? throw new ArgumentNullException(nameof(database));
+            if (multiplexer is null)
+                throw new ArgumentNullException(nameof(multiplexer));
+            this.options = multiplexer.RedisOptions;
+            this.database = multiplexer.Database;
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        private string GetKey(string key) => $"{this.options.KeyPrefix}{typeof(T).FullName}:{key}";
 
         public async Task<T> GetAsync(string key)
         {
