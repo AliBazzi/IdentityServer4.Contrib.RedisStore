@@ -15,18 +15,18 @@ then you can inject the stores in the Identity Server 4 Configuration at startup
 public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddIdentityServer()
-				.AddTemporarySigningCredential()
-				...
-				.AddOperationalStore(options =>
-									 {
-										 options.RedisConnectionString = "---redis store connection string---";
-										 options.Db = 1;
-									 })
-				.AddRedisCaching(options =>
-									 {
-										 options.RedisConnectionString = "---redis store connection string---";
-										 options.KeyPrefix = "prefix";
-									 });
+			.AddTemporarySigningCredential()
+			...
+			.AddOperationalStore(options =>
+			{
+				options.RedisConnectionString = "---redis store connection string---";
+				options.Db = 1;
+			})
+			.AddRedisCaching(options =>
+			{
+				options.RedisConnectionString = "---redis store connection string---";
+				options.KeyPrefix = "prefix";
+			});
 		}
 ```
 
@@ -41,17 +41,17 @@ public void ConfigureServices(IServiceCollection services)
 			...
 				
 			services.AddIdentityServer()
-				.AddTemporarySigningCredential()
-				...
-				.AddOperationalStore(options =>
-									 {
-										 options.ConfigurationOptions = operationalStoreOptions;
-										 options.KeyPrefix = "another_prefix";
-									 })
-				.AddRedisCaching(options =>
-									 {
-										 options.ConfigurationOptions = cacheOptions;
-									 });
+			.AddTemporarySigningCredential()
+			...
+			.AddOperationalStore(options =>
+			{
+				options.ConfigurationOptions = operationalStoreOptions;
+				options.KeyPrefix = "another_prefix";
+			})
+			.AddRedisCaching(options =>
+			{
+				options.ConfigurationOptions = cacheOptions;
+			});
 		}
 ```
 
@@ -63,14 +63,14 @@ public void ConfigureServices(IServiceCollection services)
 			...
 
 			services.AddIdentityServer()
-				.AddTemporarySigningCredential()
-				...
-				 .AddRedisCaching(options =>
-									 {
-										 options.ConfigurationOptions = cacheOptions;
-									 })
-				.AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
-				.AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>();
+			.AddTemporarySigningCredential()
+			...
+			.AddRedisCaching(options =>
+			{
+				options.ConfigurationOptions = cacheOptions;
+			})
+			.AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
+			.AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>();
 		}
 
 ```

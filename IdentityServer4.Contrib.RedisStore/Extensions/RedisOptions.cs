@@ -5,7 +5,7 @@ namespace IdentityServer4.Contrib.RedisStore
     /// <summary>
     /// Represents Redis general options.
     /// </summary>
-    public class RedisOptions
+    public abstract class RedisOptions
     {
         /// <summary>
         ///Configuration options objects for StackExchange.Redis Library.
@@ -25,7 +25,7 @@ namespace IdentityServer4.Contrib.RedisStore
         private string _keyPrefix = string.Empty;
 
         /// <summary>
-        /// The Prefix to add to each key stored on Cache, default is Empty.
+        /// The Prefix to add to each key stored on Redis Cache, default is Empty.
         /// </summary>
         public string KeyPrefix
         {

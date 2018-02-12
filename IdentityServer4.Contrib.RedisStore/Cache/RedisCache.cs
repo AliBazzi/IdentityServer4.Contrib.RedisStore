@@ -39,7 +39,6 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
             {
                 logger.LogDebug($"retrieved {typeof(T).FullName} with Key: {key} from Redis Cache successfully.");
                 return Deserialize(item);
-
             }
             else
             {

@@ -22,7 +22,8 @@ namespace Microsoft.Extensions.DependencyInjection
             optionsBuilder?.Invoke(options);
             options.Connect();
 
-            builder.Services.TryAddScoped(_ => new RedisMultiplexer<RedisConfigurationStoreOptions>(options));
+            builder.Services.TryAddSingleton(options);
+            builder.Services.TryAddScoped<RedisMultiplexer<RedisConfigurationStoreOptions>>();
             builder.Services.TryAddTransient<IPersistedGrantStore, PersistedGrantStore>();
             return builder;
         }
@@ -39,7 +40,8 @@ namespace Microsoft.Extensions.DependencyInjection
             optionsBuilder?.Invoke(options);
             options.Connect();
 
-            builder.Services.TryAddScoped(_ => new RedisMultiplexer<RedisCacheOptions>(options));
+            builder.Services.TryAddSingleton(options);
+            builder.Services.TryAddScoped<RedisMultiplexer<RedisCacheOptions>>();
             builder.Services.TryAddTransient(typeof(ICache<>), typeof(RedisCache<>));
             return builder;
         }
