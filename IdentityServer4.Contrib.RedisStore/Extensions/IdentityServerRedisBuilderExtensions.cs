@@ -14,17 +14,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Add Redis Operational Store.
         /// </summary>
         /// <param name="builder"></param>
-        /// <param name="optionsBuilder">Redis Configuration Store Options builder</param>
+        /// <param name="optionsBuilder">Redis Operational Store Options builder</param>
         /// <returns></returns>
-        public static IIdentityServerBuilder AddOperationalStore(this IIdentityServerBuilder builder, Action<RedisConfigurationStoreOptions> optionsBuilder)
+        public static IIdentityServerBuilder AddOperationalStore(this IIdentityServerBuilder builder, Action<RedisOperationalStoreOptions> optionsBuilder)
         {
-            var options = new RedisConfigurationStoreOptions();
+            var options = new RedisOperationalStoreOptions();
             optionsBuilder?.Invoke(options);
             options.Connect();
 
-            builder.Services.TryAddSingleton(options);
-            builder.Services.TryAddScoped<RedisMultiplexer<RedisConfigurationStoreOptions>>();
-            builder.Services.TryAddTransient<IPersistedGrantStore, PersistedGrantStore>();
+            builder.Services.AddSingleton(options);
+            builder.Services.AddScoped<RedisMultiplexer<RedisOperationalStoreOptions>>();
+            builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
             return builder;
         }
 
@@ -40,9 +40,9 @@ namespace Microsoft.Extensions.DependencyInjection
             optionsBuilder?.Invoke(options);
             options.Connect();
 
-            builder.Services.TryAddSingleton(options);
-            builder.Services.TryAddScoped<RedisMultiplexer<RedisCacheOptions>>();
-            builder.Services.TryAddTransient(typeof(ICache<>), typeof(RedisCache<>));
+            builder.Services.AddSingleton(options);
+            builder.Services.AddScoped<RedisMultiplexer<RedisCacheOptions>>();
+            builder.Services.AddTransient(typeof(ICache<>), typeof(RedisCache<>));
             return builder;
         }
     }

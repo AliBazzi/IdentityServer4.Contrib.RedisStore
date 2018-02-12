@@ -13,65 +13,65 @@ then you can inject the stores in the Identity Server 4 Configuration at startup
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
-		{
-			services.AddIdentityServer()
-			.AddTemporarySigningCredential()
-			...
-			.AddOperationalStore(options =>
-			{
-				options.RedisConnectionString = "---redis store connection string---";
-				options.Db = 1;
-			})
-			.AddRedisCaching(options =>
-			{
-				options.RedisConnectionString = "---redis store connection string---";
-				options.KeyPrefix = "prefix";
-			});
-		}
+{
+	services.AddIdentityServer()
+	.AddTemporarySigningCredential()
+	...
+	.AddOperationalStore(options =>
+	{
+		options.RedisConnectionString = "---redis store connection string---";
+		options.Db = 1;
+	})
+	.AddRedisCaching(options =>
+	{
+		options.RedisConnectionString = "---redis store connection string---";
+		options.KeyPrefix = "prefix";
+	});
+}
 ```
 
 Or by passing ConfigurationOptions instance, which contains the configuration of Redis store:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
-		{
-			var operationalStoreOptions = new ConfigurationOptions {  /* ... */ };
-			var cacheOptions = new ConfigurationOptions {  /* ... */ };
-	
-			...
-				
-			services.AddIdentityServer()
-			.AddTemporarySigningCredential()
-			...
-			.AddOperationalStore(options =>
-			{
-				options.ConfigurationOptions = operationalStoreOptions;
-				options.KeyPrefix = "another_prefix";
-			})
-			.AddRedisCaching(options =>
-			{
-				options.ConfigurationOptions = cacheOptions;
-			});
-		}
+{
+	var operationalStoreOptions = new ConfigurationOptions {  /* ... */ };
+	var cacheOptions = new ConfigurationOptions {  /* ... */ };
+
+	...
+		
+	services.AddIdentityServer()
+	.AddTemporarySigningCredential()
+	...
+	.AddOperationalStore(options =>
+	{
+		options.ConfigurationOptions = operationalStoreOptions;
+		options.KeyPrefix = "another_prefix";
+	})
+	.AddRedisCaching(options =>
+	{
+		options.ConfigurationOptions = cacheOptions;
+	});
+}
 ```
 
 don't forget to register the caching for specific configuration store you like to apply the caching on, like the following:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
-		{
-			...
+{
+	...
 
-			services.AddIdentityServer()
-			.AddTemporarySigningCredential()
-			...
-			.AddRedisCaching(options =>
-			{
-				options.ConfigurationOptions = cacheOptions;
-			})
-			.AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
-			.AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>();
-		}
+	services.AddIdentityServer()
+	.AddTemporarySigningCredential()
+	...
+	.AddRedisCaching(options =>
+	{
+		options.ConfigurationOptions = cacheOptions;
+	})
+	.AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
+	.AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>();
+}
 
 ```
 
@@ -86,20 +86,20 @@ operational store and caching are not related, you can use them separately or co
 the solution was approached based on how the [SQL Store](https://github.com/IdentityServer/IdentityServer4.EntityFramework) storing the operational data, but the concept of Redis as a NoSQL db is totally different than relational db concepts, all the operational data stores implement the following [IPersistedGrantStore](https://github.com/IdentityServer/IdentityServer4/blob/dev/src/IdentityServer4/Stores/IPersistedGrantStore.cs) interface:
 
 ```csharp
-	public interface IPersistedGrantStore
-	{
-		Task StoreAsync(PersistedGrant grant);
+public interface IPersistedGrantStore
+{
+	Task StoreAsync(PersistedGrant grant);
 
-		Task<PersistedGrant> GetAsync(string key);
+	Task<PersistedGrant> GetAsync(string key);
 
-		Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId);
+	Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId);
 
-		Task RemoveAsync(string key);
+	Task RemoveAsync(string key);
 
-		Task RemoveAllAsync(string subjectId, string clientId);
+	Task RemoveAllAsync(string subjectId, string clientId);
 
-		Task RemoveAllAsync(string subjectId, string clientId, string type);
-	}
+	Task RemoveAllAsync(string subjectId, string clientId, string type);
+}
 ```
 
 with the IPersistedGrantStore contract, we notice that the GetAllAsync(subjectId), RemoveAllAsync(subjectId,clientId) and RemoveAllAsync(subjectId,clientId,type) defines a contract to read based on subject id and remove all the grants in the store based on subject, client ids and type of the grant.

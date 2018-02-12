@@ -16,7 +16,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
     /// </summary>
     public class PersistedGrantStore : IPersistedGrantStore
     {
-        private readonly RedisConfigurationStoreOptions options;
+        private readonly RedisOperationalStoreOptions options;
 
         private readonly IDatabase database;
 
@@ -24,7 +24,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
 
         private ISystemClock clock;
 
-        public PersistedGrantStore(RedisMultiplexer<RedisConfigurationStoreOptions> multiplexer, ILogger<PersistedGrantStore> logger, ISystemClock clock)
+        public PersistedGrantStore(RedisMultiplexer<RedisOperationalStoreOptions> multiplexer, ILogger<PersistedGrantStore> logger, ISystemClock clock)
         {
             if (multiplexer is null)
                 throw new ArgumentNullException(nameof(multiplexer));

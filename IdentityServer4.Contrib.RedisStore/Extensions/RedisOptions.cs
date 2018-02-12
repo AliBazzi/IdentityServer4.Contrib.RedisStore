@@ -54,9 +54,9 @@ namespace IdentityServer4.Contrib.RedisStore
     }
 
     /// <summary>
-    /// Represents Redis Configuration store options.
+    /// Represents Redis Operational store options.
     /// </summary>
-    public class RedisConfigurationStoreOptions : RedisOptions
+    public class RedisOperationalStoreOptions : RedisOptions
     {
 
     }
