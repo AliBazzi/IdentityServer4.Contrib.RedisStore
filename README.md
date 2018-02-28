@@ -1,9 +1,6 @@
-
-
 # IdentityServer4.Contrib.RedisStore
 
 IdentityServer4.Contrib.RedisStore is a persistence layer using [Redis](https://redis.io) DB for operational data and for caching capability for Identity Server 4. Specifically, this store provides implementation for [IPersistedGrantStore](http://docs.identityserver.io/en/release/topics/deployment.html#operational-data) and [ICache<T>](http://docs.identityserver.io/en/release/topics/startup.html#caching).
-
 
 ## How to use
 
@@ -14,19 +11,18 @@ then you can inject the stores in the Identity Server 4 Configuration at startup
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-	services.AddIdentityServer()
-	.AddTemporarySigningCredential()
-	...
-	.AddOperationalStore(options =>
-	{
-		options.RedisConnectionString = "---redis store connection string---";
-		options.Db = 1;
-	})
-	.AddRedisCaching(options =>
-	{
-		options.RedisConnectionString = "---redis store connection string---";
-		options.KeyPrefix = "prefix";
-	});
+    services.AddIdentityServer()
+    ...
+    .AddOperationalStore(options =>
+    {
+        options.RedisConnectionString = "---redis store connection string---";
+        options.Db = 1;
+    })
+    .AddRedisCaching(options =>
+    {
+        options.RedisConnectionString = "---redis store connection string---";
+        options.KeyPrefix = "prefix";
+    });
 }
 ```
 
@@ -35,23 +31,22 @@ Or by passing ConfigurationOptions instance, which contains the configuration of
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-	var operationalStoreOptions = new ConfigurationOptions {  /* ... */ };
-	var cacheOptions = new ConfigurationOptions {  /* ... */ };
+    var operationalStoreOptions = new ConfigurationOptions {  /* ... */ };
+    var cacheOptions = new ConfigurationOptions {  /* ... */ };
 
-	...
-		
-	services.AddIdentityServer()
-	.AddTemporarySigningCredential()
-	...
-	.AddOperationalStore(options =>
-	{
-		options.ConfigurationOptions = operationalStoreOptions;
-		options.KeyPrefix = "another_prefix";
-	})
-	.AddRedisCaching(options =>
-	{
-		options.ConfigurationOptions = cacheOptions;
-	});
+    ...
+
+    services.AddIdentityServer()
+    ...
+    .AddOperationalStore(options =>
+    {
+        options.ConfigurationOptions = operationalStoreOptions;
+        options.KeyPrefix = "another_prefix";
+    })
+    .AddRedisCaching(options =>
+    {
+        options.ConfigurationOptions = cacheOptions;
+    });
 }
 ```
 
@@ -60,24 +55,23 @@ don't forget to register the caching for specific configuration store you like t
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-	...
+    ...
 
-	services.AddIdentityServer()
-	.AddTemporarySigningCredential()
-	...
-	.AddRedisCaching(options =>
-	{
-		options.ConfigurationOptions = cacheOptions;
-	})
-	.AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
-	.AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>();
+    services.AddIdentityServer()
+    ...
+    .AddRedisCaching(options =>
+    {
+        options.ConfigurationOptions = cacheOptions;
+    })
+    .AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
+    .AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>();
 }
 
 ```
 
-In this previous snippet, registration of caching capability are added for Client Store and Resource Store, and it's registered for [Entity Framework stores](https://github.com/IdentityServer/IdentityServer4.EntityFramework) in this case, but if you have your own Stores you should register them here in order to allow the caching for these specific stores.  
+In this previous snippet, registration of caching capability are added for Client Store and Resource Store, and it's registered for [Entity Framework stores](https://github.com/IdentityServer/IdentityServer4.EntityFramework) in this case, but if you have your own Stores you should register them here in order to allow the caching for these specific stores.
 
-##### Note
+#### Note
 
 operational store and caching are not related, you can use them separately or combined.
 
@@ -88,17 +82,17 @@ the solution was approached based on how the [SQL Store](https://github.com/Iden
 ```csharp
 public interface IPersistedGrantStore
 {
-	Task StoreAsync(PersistedGrant grant);
+    Task StoreAsync(PersistedGrant grant);
 
-	Task<PersistedGrant> GetAsync(string key);
+    Task<PersistedGrant> GetAsync(string key);
 
-	Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId);
+    Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId);
 
-	Task RemoveAsync(string key);
+    Task RemoveAsync(string key);
 
-	Task RemoveAllAsync(string subjectId, string clientId);
+    Task RemoveAllAsync(string subjectId, string clientId);
 
-	Task RemoveAllAsync(string subjectId, string clientId, string type);
+    Task RemoveAllAsync(string subjectId, string clientId, string type);
 }
 ```
 
@@ -127,5 +121,3 @@ since Redis has a [key Expiration](https://redis.io/commands/expire) feature bas
 ## Feedback
 
 feedbacks are always welcomed, please open an issue for any problem or bug found, and the suggestions are also welcomed.
-
-
