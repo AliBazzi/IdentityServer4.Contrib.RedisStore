@@ -22,7 +22,8 @@ public void ConfigureServices(IServiceCollection services)
     {
         options.RedisConnectionString = "---redis store connection string---";
         options.KeyPrefix = "prefix";
-    });
+    })
+    ...
 }
 ```
 
@@ -46,7 +47,8 @@ public void ConfigureServices(IServiceCollection services)
     .AddRedisCaching(options =>
     {
         options.ConfigurationOptions = cacheOptions;
-    });
+    })
+    ...
 }
 ```
 
@@ -64,7 +66,8 @@ public void ConfigureServices(IServiceCollection services)
         options.ConfigurationOptions = cacheOptions;
     })
     .AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
-    .AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>();
+    .AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>()
+    ...
 }
 
 ```
@@ -106,9 +109,9 @@ so the StoreAsync operation stores the following entries in Redis:
 
 1. Key(SubjectId) -> Key* : stored in a redis Set, used on the GetAllAsync, to retrieve all the grant related to a given subject id.
 
-1. Key(SubjectId:ClientId) -> Key* : stored in a redis set, used to retrieve all the keys that are related to a subject and client ids, to remove them while calling RemoveAllAsync.
+1. Key(SubjectId,ClientId) -> Key* : stored in a redis set, used to retrieve all the keys that are related to a subject and client ids, to remove them while calling RemoveAllAsync.
 
-1. Key(SubjectId:ClientId:type) -> Key* : stored in a redis set, used to retrieve all the keys that are related to a subject, client ids and type of the grant, to remove them while calling RemoveAllAsync.
+1. Key(SubjectId,ClientId,type) -> Key* : stored in a redis set, used to retrieve all the keys that are related to a subject, client ids and type of the grant, to remove them while calling RemoveAllAsync.
 
 for more information on data structures used to store the grant please refer to [Redis data types documentation](https://redis.io/topics/data-types)
 
@@ -116,7 +119,7 @@ since Redis has a [key Expiration](https://redis.io/commands/expire) feature bas
 
 1. for Key of the grant, the expiration is straight forward, it's set on the StringSet Redis operation as defined by identity server on the grant object.
 
-1. for Key(SubjectId), Key(SubjectId:ClientId) and Key(SubjectId:clientId:type) the expiration is not set, since the same and only store type is persisting the grants regardless of their type, not like the identity server 3, where it has multiple store for each grant type.
+1. for Key(SubjectId) and Key(SubjectId,ClientId) the expiration is not set, since the same and only store type is persisting the grants regardless of their type, not like the identity server 3, where it has multiple stores for each grant type. and we are setting expiration for Key(SubjectId,clientId,type) since this set for the same grant type, and client, so the keys are consistent here.
 
 ## Feedback
 
