@@ -14,35 +14,38 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
     /// <typeparam name="T"></typeparam>
     public class RedisCache<T> : ICache<T> where T : class
     {
-        private readonly IDatabase database;
+        private readonly IDatabase _database;
 
-        private readonly RedisCacheOptions options;
+        private readonly RedisCacheOptions _options;
 
-        private readonly ILogger<RedisCache<T>> logger;
+        private readonly ILogger<RedisCache<T>> _logger;
 
         public RedisCache(RedisMultiplexer<RedisCacheOptions> multiplexer, ILogger<RedisCache<T>> logger)
         {
             if (multiplexer is null)
+            {
                 throw new ArgumentNullException(nameof(multiplexer));
-            this.options = multiplexer.RedisOptions;
-            this.database = multiplexer.Database;
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            }
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            _options = multiplexer.RedisOptions;
+            _database = multiplexer.Database;
         }
 
-        private string GetKey(string key) => $"{this.options.KeyPrefix}{typeof(T).FullName}:{key}";
+        private string GetKey(string key) => $"{_options.KeyPrefix}{typeof(T).FullName}:{key}";
 
         public async Task<T> GetAsync(string key)
         {
             var cacheKey = GetKey(key);
-            var item = await this.database.StringGetAsync(cacheKey).ConfigureAwait(false);
+            var item = await _database.StringGetAsync(cacheKey).ConfigureAwait(false);
             if (item.HasValue)
             {
-                logger.LogDebug($"retrieved {typeof(T).FullName} with Key: {key} from Redis Cache successfully.");
+                _logger.LogDebug($"retrieved {typeof(T).FullName} with Key: {key} from Redis Cache successfully.");
                 return Deserialize(item);
             }
             else
             {
-                logger.LogDebug($"missed {typeof(T).FullName} with Key: {key} from Redis Cache.");
+                _logger.LogDebug($"missed {typeof(T).FullName} with Key: {key} from Redis Cache.");
                 return default(T);
             }
         }
@@ -50,8 +53,8 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
         public async Task SetAsync(string key, T item, TimeSpan expiration)
         {
             var cacheKey = GetKey(key);
-            await this.database.StringSetAsync(cacheKey, Serialize(item), expiration).ConfigureAwait(false);
-            logger.LogDebug($"persisted {typeof(T).FullName} with Key: {key} in Redis Cache successfully.");
+            await _database.StringSetAsync(cacheKey, Serialize(item), expiration).ConfigureAwait(false);
+            _logger.LogDebug($"persisted {typeof(T).FullName} with Key: {key} in Redis Cache successfully.");
         }
 
         #region Json
@@ -67,12 +70,12 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
 
         private T Deserialize(string json)
         {
-            return JsonConvert.DeserializeObject<T>(json, this.SerializerSettings);
+            return JsonConvert.DeserializeObject<T>(json, SerializerSettings);
         }
 
         private string Serialize(T item)
         {
-            return JsonConvert.SerializeObject(item, this.SerializerSettings);
+            return JsonConvert.SerializeObject(item, SerializerSettings);
         }
         #endregion
     }

@@ -3,7 +3,6 @@ using IdentityServer4.Contrib.RedisStore.Cache;
 using IdentityServer4.Contrib.RedisStore.Stores;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -20,7 +19,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var options = new RedisOperationalStoreOptions();
             optionsBuilder?.Invoke(options);
-            options.Connect();
 
             builder.Services.AddSingleton(options);
             builder.Services.AddScoped<RedisMultiplexer<RedisOperationalStoreOptions>>();
@@ -38,7 +36,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var options = new RedisCacheOptions();
             optionsBuilder?.Invoke(options);
-            options.Connect();
 
             builder.Services.AddSingleton(options);
             builder.Services.AddScoped<RedisMultiplexer<RedisCacheOptions>>();

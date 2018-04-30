@@ -1,14 +1,15 @@
-﻿using StackExchange.Redis;
+﻿using System;
+using StackExchange.Redis;
 
 namespace IdentityServer4.Contrib.RedisStore
 {
     /// <summary>
-    /// Represents Redis general options.
+    ///     Represents Redis general options.
     /// </summary>
     public abstract class RedisOptions
     {
         /// <summary>
-        ///Configuration options objects for StackExchange.Redis Library.
+        /// Configuration options objects for StackExchange.Redis Library.
         /// </summary>
         public ConfigurationOptions ConfigurationOptions { get; set; }
 
@@ -18,7 +19,7 @@ namespace IdentityServer4.Contrib.RedisStore
         public string RedisConnectionString { get; set; }
 
         /// <summary>
-        ///The specific Db number to connect to, default is -1.
+        /// The specific Db number to connect to, default is -1.
         /// </summary>
         public int Db { get; set; } = -1;
 
@@ -29,28 +30,23 @@ namespace IdentityServer4.Contrib.RedisStore
         /// </summary>
         public string KeyPrefix
         {
-            get
-            {
-                return string.IsNullOrEmpty(this._keyPrefix) ? this._keyPrefix : $"{_keyPrefix}:";
-            }
-            set
-            {
-                this._keyPrefix = value;
-            }
+            get => string.IsNullOrEmpty(_keyPrefix) ? _keyPrefix : $"{_keyPrefix}:";
+            set => _keyPrefix = value;
         }
 
-        internal IConnectionMultiplexer Multiplexer { get; private set; }
+        private Lazy<IConnectionMultiplexer> _multiplexer =>
+            GetConnectionMultiplexer(RedisConnectionString, ConfigurationOptions);
 
-        internal void Connect()
+        private static Lazy<IConnectionMultiplexer> GetConnectionMultiplexer(string connectionString,
+            ConfigurationOptions options)
         {
-            if (Multiplexer is null)
-            {
-                if (string.IsNullOrEmpty(this.RedisConnectionString))
-                    this.Multiplexer = ConnectionMultiplexer.Connect(this.ConfigurationOptions);
-                else
-                    this.Multiplexer = ConnectionMultiplexer.Connect(this.RedisConnectionString);
-            }
+            return new Lazy<IConnectionMultiplexer>(() =>
+                string.IsNullOrEmpty(connectionString)
+                    ? ConnectionMultiplexer.Connect(options)
+                    : ConnectionMultiplexer.Connect(connectionString));
         }
+
+        internal IConnectionMultiplexer Multiplexer => _multiplexer.Value;
     }
 
     /// <summary>
@@ -58,7 +54,6 @@ namespace IdentityServer4.Contrib.RedisStore
     /// </summary>
     public class RedisOperationalStoreOptions : RedisOptions
     {
-
     }
 
     /// <summary>
@@ -66,6 +61,5 @@ namespace IdentityServer4.Contrib.RedisStore
     /// </summary>
     public class RedisCacheOptions : RedisOptions
     {
-
     }
 }
