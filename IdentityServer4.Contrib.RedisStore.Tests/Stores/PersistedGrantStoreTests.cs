@@ -23,7 +23,8 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
         {
             _logger = new Mock<ILogger<PersistedGrantStore>>();
             _clock = new Mock<ISystemClock>();
-            var options = new RedisOperationalStoreOptions{RedisConnectionString = "localhost"};
+	        string connectionString = ConfigurationUtils.GetConfiguration()["Redis:ConnectionString"];
+            var options = new RedisOperationalStoreOptions{RedisConnectionString = connectionString};
             _multiplexer = new RedisMultiplexer<RedisOperationalStoreOptions>(options);
 
             _store = new PersistedGrantStore(_multiplexer, _logger.Object, _clock.Object);

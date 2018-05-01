@@ -15,7 +15,7 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Cache
         public RedisCacheTests()
         {
             var logger = new Mock<ILogger<RedisCache<string>>>();
-            var options = new RedisCacheOptions{RedisConnectionString = "localhost"};
+            var options = new RedisCacheOptions{RedisConnectionString = ConfigurationUtils.GetConfiguration()["Redis:ConnectionString"]};
             var multiplexer = new RedisMultiplexer<RedisCacheOptions>(options);
 
             _cache = new RedisCache<string>(multiplexer, logger.Object);
@@ -32,7 +32,7 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Cache
         [Fact]
         public void RedisCache_Null_Logger_Throws_ArgumentNullException()
         {
-            var multiplexer = new RedisMultiplexer<RedisCacheOptions>(new RedisCacheOptions { RedisConnectionString = "localhost" });
+            var multiplexer = new RedisMultiplexer<RedisCacheOptions>(new RedisCacheOptions { RedisConnectionString = String.Empty });
 
             Assert.Throws<ArgumentNullException>(() => new RedisCache<string>(multiplexer, null));
         }
