@@ -32,9 +32,9 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Cache
         [Fact]
         public void RedisCache_Null_Logger_Throws_ArgumentNullException()
         {
-			var multiplexer = new RedisMultiplexer<RedisCacheOptions>(new RedisCacheOptions { RedisConnectionString = ConfigurationUtils.GetConfiguration()["Redis:ConnectionString"] });
+            var multiplexer = new RedisMultiplexer<RedisCacheOptions>(new RedisCacheOptions { RedisConnectionString = ConfigurationUtils.GetConfiguration()["Redis:ConnectionString"] });
 
-			Assert.Throws<ArgumentNullException>(() => new RedisCache<string>(multiplexer, null));
+            Assert.Throws<ArgumentNullException>(() => new RedisCache<string>(multiplexer, null));
         }
 
         [Fact]
