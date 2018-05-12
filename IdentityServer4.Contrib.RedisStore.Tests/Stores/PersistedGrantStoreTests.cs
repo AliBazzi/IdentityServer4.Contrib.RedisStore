@@ -43,12 +43,6 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
         }
 
         [Fact]
-        public void PersistedGrantStore_Null_Clock_Throws_ArgumentNullException()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PersistedGrantStore(_multiplexer, _logger.Object, null));
-        }
-
-        [Fact]
         public async Task StoreAysnc_Stores_Entries()
         {
             var now = DateTime.Now;

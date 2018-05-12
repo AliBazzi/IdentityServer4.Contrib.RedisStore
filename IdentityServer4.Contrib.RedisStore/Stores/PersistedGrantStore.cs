@@ -31,7 +31,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             this.options = multiplexer.RedisOptions;
             this.database = multiplexer.Database;
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.clock = clock ?? throw new ArgumentNullException(nameof(logger));
+            this.clock = clock;
         }
 
         private string GetKey(string key) => $"{this.options.KeyPrefix}{key}";
