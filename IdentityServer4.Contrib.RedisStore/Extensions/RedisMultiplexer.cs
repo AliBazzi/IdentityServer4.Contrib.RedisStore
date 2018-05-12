@@ -2,25 +2,25 @@
 
 namespace IdentityServer4.Contrib.RedisStore
 {
-    /// <summary>
-    /// represents Redis general multiplexer
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class RedisMultiplexer<T> where T : RedisOptions
-    {
-        public RedisMultiplexer(T redisOptions)
-        {
-            RedisOptions = redisOptions;
-            GetDatabase();
-        }
+	/// <summary>
+	/// represents Redis general multiplexer
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public class RedisMultiplexer<T> where T : RedisOptions
+	{
+		public RedisMultiplexer(T redisOptions)
+		{
+			this.RedisOptions = redisOptions;
+			this.GetDatabase();
+		}
 
-        private void GetDatabase()
-        {
-            Database = RedisOptions.Multiplexer.GetDatabase(string.IsNullOrEmpty(RedisOptions.RedisConnectionString) ? -1 : RedisOptions.Db);
-        }
+		private void GetDatabase()
+		{
+			this.Database = this.RedisOptions.Multiplexer.GetDatabase(string.IsNullOrEmpty(this.RedisOptions.RedisConnectionString) ? -1 : this.RedisOptions.Db);
+		}
 
-        internal T RedisOptions { get; }
+		internal T RedisOptions { get; }
 
-        internal IDatabase Database { get; private set; }
-    }
+		internal IDatabase Database { get; private set; }
+	}
 }
