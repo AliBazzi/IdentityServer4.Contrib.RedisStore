@@ -24,9 +24,10 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
         {
             if (multiplexer is null)
                 throw new ArgumentNullException(nameof(multiplexer));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
             this.options = multiplexer.RedisOptions;
             this.database = multiplexer.Database;
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         private string GetKey(string key) => $"{this.options.KeyPrefix}{typeof(T).FullName}:{key}";
