@@ -1,5 +1,4 @@
-﻿using System;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
 namespace IdentityServer4.Contrib.RedisStore
 {
@@ -40,19 +39,18 @@ namespace IdentityServer4.Contrib.RedisStore
             }
         }
 
-        private Lazy<IConnectionMultiplexer> _multiplexer =>
-            GetConnectionMultiplexer(RedisConnectionString, ConfigurationOptions);
+        internal IConnectionMultiplexer Multiplexer { get; private set; }
 
-        private static Lazy<IConnectionMultiplexer> GetConnectionMultiplexer(string connectionString,
-            ConfigurationOptions options)
+        internal void Connect()
         {
-            return new Lazy<IConnectionMultiplexer>(() =>
-                string.IsNullOrEmpty(connectionString)
-                    ? ConnectionMultiplexer.Connect(options)
-                    : ConnectionMultiplexer.Connect(connectionString));
+            if (Multiplexer is null)
+            {
+                if (string.IsNullOrEmpty(this.RedisConnectionString))
+                    this.Multiplexer = ConnectionMultiplexer.Connect(this.ConfigurationOptions);
+                else
+                    this.Multiplexer = ConnectionMultiplexer.Connect(this.RedisConnectionString);
+            }
         }
-
-        internal IConnectionMultiplexer Multiplexer => _multiplexer.Value;
     }
 
     /// <summary>
