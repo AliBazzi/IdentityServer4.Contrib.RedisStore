@@ -41,19 +41,19 @@ namespace IdentityServer4.Contrib.RedisStore
 		}
 
 		private Lazy<IConnectionMultiplexer> _multiplexer =>
-            GetConnectionMultiplexer(RedisConnectionString, ConfigurationOptions);
+			GetConnectionMultiplexer(RedisConnectionString, ConfigurationOptions);
 
-        private static Lazy<IConnectionMultiplexer> GetConnectionMultiplexer(string connectionString,
-            ConfigurationOptions options)
-        {
-            return new Lazy<IConnectionMultiplexer>(() =>
-                string.IsNullOrEmpty(connectionString)
-                    ? ConnectionMultiplexer.Connect(options)
-                    : ConnectionMultiplexer.Connect(connectionString));
-        }
+		private static Lazy<IConnectionMultiplexer> GetConnectionMultiplexer(string connectionString,
+			ConfigurationOptions options)
+		{
+			return new Lazy<IConnectionMultiplexer>(() =>
+				string.IsNullOrEmpty(connectionString)
+					? ConnectionMultiplexer.Connect(options)
+					: ConnectionMultiplexer.Connect(connectionString));
+		}
 
-        internal IConnectionMultiplexer Multiplexer => _multiplexer.Value;
-    }
+		internal IConnectionMultiplexer Multiplexer => _multiplexer.Value;
+	}
 
 	/// <summary>
 	/// Represents Redis Operational store options.
