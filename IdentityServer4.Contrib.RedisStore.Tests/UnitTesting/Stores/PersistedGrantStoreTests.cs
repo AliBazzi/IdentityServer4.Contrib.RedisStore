@@ -23,8 +23,8 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
         {
             _logger = new Mock<ILogger<PersistedGrantStore>>();
             _clock = new Mock<ISystemClock>();
-	        string connectionString = ConfigurationUtils.GetConfiguration()["Redis:ConnectionString"];
-            var options = new RedisOperationalStoreOptions{RedisConnectionString = connectionString};
+            string connectionString = ConfigurationUtils.GetConfiguration()["Redis:ConnectionString"];
+            var options = new RedisOperationalStoreOptions { RedisConnectionString = connectionString };
             _multiplexer = new RedisMultiplexer<RedisOperationalStoreOptions>(options);
 
             _store = new PersistedGrantStore(_multiplexer, _logger.Object, _clock.Object);
@@ -49,7 +49,7 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
             _clock.Setup(x => x.UtcNow).Returns(now);
             string key = nameof(StoreAysnc_Stores_Entries);
             string expected = "this is a test";
-            var grant = new PersistedGrant{Key = key, Data = expected, Expiration = now.AddSeconds(1)};
+            var grant = new PersistedGrant { Key = key, Data = expected, Expiration = now.AddSeconds(1) };
             await _store.StoreAsync(grant);
 
             var actual = await _store.GetAsync(key);

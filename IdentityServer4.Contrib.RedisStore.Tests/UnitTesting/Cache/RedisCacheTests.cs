@@ -15,7 +15,7 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Cache
         public RedisCacheTests()
         {
             var logger = new Mock<ILogger<RedisCache<string>>>();
-            var options = new RedisCacheOptions{RedisConnectionString = ConfigurationUtils.GetConfiguration()["Redis:ConnectionString"]};
+            var options = new RedisCacheOptions { RedisConnectionString = ConfigurationUtils.GetConfiguration()["Redis:ConnectionString"] };
             var multiplexer = new RedisMultiplexer<RedisCacheOptions>(options);
 
             _cache = new RedisCache<string>(multiplexer, logger.Object);
@@ -59,7 +59,7 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Cache
             var actual = await _cache.GetAsync(key);
             Assert.Equal(expected, actual);
 
-            Thread.Sleep(TimeSpan.FromSeconds(1));
+            Thread.Sleep(1500);
 
             actual = await _cache.GetAsync(key);
 
