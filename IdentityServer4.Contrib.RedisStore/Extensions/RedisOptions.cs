@@ -40,17 +40,20 @@ namespace IdentityServer4.Contrib.RedisStore
             }
         }
 
-        private Lazy<IConnectionMultiplexer> multiplexer =>
-            GetConnectionMultiplexer(RedisConnectionString, ConfigurationOptions);
-
-        private static Lazy<IConnectionMultiplexer> GetConnectionMultiplexer(string connectionString,
-            ConfigurationOptions options)
+        internal RedisOptions()
         {
-            return new Lazy<IConnectionMultiplexer>(() =>
-                string.IsNullOrEmpty(connectionString)
-                    ? ConnectionMultiplexer.Connect(options)
-                    : ConnectionMultiplexer.Connect(connectionString));
+            this.multiplexer = GetConnectionMultiplexer();
         }
+
+        private Lazy<IConnectionMultiplexer> GetConnectionMultiplexer()
+        {
+            return new Lazy<IConnectionMultiplexer>(
+                () => string.IsNullOrEmpty(this.RedisConnectionString)
+                    ? ConnectionMultiplexer.Connect(this.ConfigurationOptions)
+                    : ConnectionMultiplexer.Connect(this.RedisConnectionString));
+        }
+
+        private Lazy<IConnectionMultiplexer> multiplexer = null;
 
         internal IConnectionMultiplexer Multiplexer => this.multiplexer.Value;
     }
