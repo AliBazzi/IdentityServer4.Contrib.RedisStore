@@ -36,7 +36,7 @@ namespace IdentityServer4.Services
         /// <returns></returns>
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
-            await this.inner.GetProfileDataAsync(context);
+            await this.inner.GetProfileDataAsync(context).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -52,21 +52,20 @@ namespace IdentityServer4.Services
             var entry = await cache.GetAsync(key, options.Expiration,
                           async () =>
                           {
-                              await inner.IsActiveAsync(context);
-                              return new IsActiveContextCacheEntry(context.IsActive);
+                              await inner.IsActiveAsync(context).ConfigureAwait(false);
+                              return new IsActiveContextCacheEntry { IsActive = context.IsActive };
                           },
-                          logger);
+                          logger).ConfigureAwait(false);
 
             context.IsActive = entry.IsActive;
         }
     }
 
+    /// <summary>
+    /// Represents cache entry for IsActiveContext
+    /// </summary>
     public class IsActiveContextCacheEntry
     {
-        public IsActiveContextCacheEntry(bool isActive)
-        {
-            this.IsActive = isActive;
-        }
         public bool IsActive { get; set; }
     }
 }

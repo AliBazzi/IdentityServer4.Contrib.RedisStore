@@ -6,11 +6,12 @@ IdentityServer4.Contrib.RedisStore is a persistence layer using [Redis](https://
 
 You need to install the [nuget package](https://www.nuget.org/packages/IdentityServer4.Contrib.RedisStore)
 
-then you can inject the stores in the Identity Server 4 Configuration at startup:
+then you can inject the operational store in the Identity Server 4 Configuration at startup using one of the overloads of `AddOperationalStore`:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
+    ...
     services.AddIdentityServer()
     ...
     .AddOperationalStore(options =>
@@ -18,6 +19,18 @@ public void ConfigureServices(IServiceCollection services)
         options.RedisConnectionString = "---redis store connection string---";
         options.Db = 1;
     })
+    ...
+}
+```
+
+And for adding caching capability you can use `AddRedisCaching`:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddIdentityServer()
+    ...
     .AddRedisCaching(options =>
     {
         options.RedisConnectionString = "---redis store connection string---";
@@ -27,7 +40,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-Or by passing ConfigurationOptions instance, which contains the configuration of Redis store:
+You can pass also ConfigurationOptions instance, which contains the configuration of Redis store:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -52,7 +65,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-don't forget to register the caching for specific configuration store you like to apply the caching on, like the following:
+don't forget to register the caching for specific configuration store you like to apply the caching on after registering the services, like the following:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -65,18 +78,21 @@ public void ConfigureServices(IServiceCollection services)
     {
         options.ConfigurationOptions = cacheOptions;
     })
+    ...
     .AddClientStoreCache<IdentityServer4.EntityFramework.Stores.ClientStore>()
     .AddResourceStoreCache<IdentityServer4.EntityFramework.Stores.ResourceStore>()
+    .AddCorsPolicyCache<IdentityServer4.EntityFramework.Services.CorsPolicyService>()
+    .AddProfileServiceCache<MyProfileService>()
     ...
 }
 
 ```
 
-In this previous snippet, registration of caching capability are added for Client Store and Resource Store, and it's registered for [Entity Framework stores](https://github.com/IdentityServer/IdentityServer4.EntityFramework) in this case, but if you have your own Stores you should register them here in order to allow the caching for these specific stores.
+In this previous snippet, registration of caching capability are added for Client Store, Resource Store and Cors Policy Service, and it's registered for [Entity Framework stores](https://github.com/IdentityServer/IdentityServer4.EntityFramework) in this case, but if you have your own Stores you should register them here in order to allow the caching for these specific stores.
 
-#### Note
+>Note: operational store and caching are not related, you can use them separately or combined.
 
-operational store and caching are not related, you can use them separately or combined.
+>Note: for `AddProfileServiceCache`, you can configure it with custom key selector, the default implementation is to select `sub` claim value.
 
 ## the solution approach
 
