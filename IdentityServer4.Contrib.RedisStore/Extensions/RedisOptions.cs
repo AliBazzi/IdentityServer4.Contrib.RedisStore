@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using StackExchange.Redis;
 
+[assembly: InternalsVisibleTo("IdentityServer4.Contrib.RedisStore.Tests")]
 namespace IdentityServer4.Contrib.RedisStore
 {
     /// <summary>
