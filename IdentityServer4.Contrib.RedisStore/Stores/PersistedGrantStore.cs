@@ -57,22 +57,12 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                     var setKeyforSubject = GetSetKey(grant.SubjectId);
                     var setKeyforClient = GetSetKey(grant.SubjectId, grant.ClientId);
 
-                    //get keys to clean, if any
-                    var (_, keysToDelete) = await GetGrants(setKeyforSubject).ConfigureAwait(false);
-
                     var transaction = this.database.CreateTransaction();
                     transaction.StringSetAsync(grantKey, data, expiresIn);
                     transaction.SetAddAsync(setKeyforSubject, grantKey);
                     transaction.SetAddAsync(setKeyforClient, grantKey);
                     transaction.SetAddAsync(setKey, grantKey);
                     transaction.KeyExpireAsync(setKey, expiresIn);
-
-                    if (keysToDelete.Any())//cleanup sets while persisting new grant
-                    {
-                        transaction.SetRemoveAsync(setKey, keysToDelete.ToArray());
-                        transaction.SetRemoveAsync(setKeyforSubject, keysToDelete.ToArray());
-                        transaction.SetRemoveAsync(setKeyforClient, keysToDelete.ToArray());
-                    }
                     await transaction.ExecuteAsync().ConfigureAwait(false);
                 }
                 else
