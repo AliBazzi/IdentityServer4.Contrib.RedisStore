@@ -57,11 +57,18 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                     var setKeyforSubject = GetSetKey(grant.SubjectId);
                     var setKeyforClient = GetSetKey(grant.SubjectId, grant.ClientId);
 
+                    var ttlOfClientSet = await this.database.KeyTimeToLiveAsync(setKeyforClient).ConfigureAwait(false);
+                    var ttlOfSubjectSet = await this.database.KeyTimeToLiveAsync(setKeyforSubject).ConfigureAwait(false);
+
                     var transaction = this.database.CreateTransaction();
                     transaction.StringSetAsync(grantKey, data, expiresIn);
                     transaction.SetAddAsync(setKeyforSubject, grantKey);
                     transaction.SetAddAsync(setKeyforClient, grantKey);
                     transaction.SetAddAsync(setKey, grantKey);
+                    if ((ttlOfSubjectSet ?? TimeSpan.Zero) <= expiresIn)
+                        transaction.KeyExpireAsync(setKeyforSubject, expiresIn);
+                    if ((ttlOfClientSet ?? TimeSpan.Zero) <= expiresIn)
+                        transaction.KeyExpireAsync(setKeyforClient, expiresIn);
                     transaction.KeyExpireAsync(setKey, expiresIn);
                     await transaction.ExecuteAsync().ConfigureAwait(false);
                 }
@@ -75,7 +82,6 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             {
                 logger.LogWarning($"exception storing persisted grant to Redis database for subject {grant.SubjectId}, clientId {grant.ClientId}, grantType {grant.Type} : {ex.Message}");
             }
-
         }
 
         public async Task<PersistedGrant> GetAsync(string key)

@@ -43,13 +43,13 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
         }
 
         [Fact]
-        public async Task StoreAysnc_Stores_Entries()
+        public async Task StoreAsync_Stores_Entries()
         {
             var now = DateTime.Now;
             _clock.Setup(x => x.UtcNow).Returns(now);
-            string key = nameof(StoreAysnc_Stores_Entries);
+            string key = nameof(StoreAsync_Stores_Entries);
             string expected = "this is a test";
-            var grant = new PersistedGrant { Key = key, Data = expected, Expiration = now.AddSeconds(1) };
+            var grant = new PersistedGrant { Key = key, Data = expected, ClientId = "client1", SubjectId = "sub1", Type = "type1", Expiration = now.AddSeconds(1) };
             await _store.StoreAsync(grant);
 
             var actual = await _store.GetAsync(key);
@@ -59,13 +59,82 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
         }
 
         [Fact]
+        public async Task Store_And_Remove_Entries()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string key = nameof(Store_And_Remove_Entries);
+            string expected = "this is a test";
+            var grant = new PersistedGrant { Key = key, Data = expected, ClientId = "client1", SubjectId = "sub1", Type = "type1", Expiration = now.AddSeconds(1) };
+            await _store.StoreAsync(grant);
+
+            await _store.RemoveAsync(key);
+
+            var actual = await _store.GetAsync(key);
+
+            Assert.Null(actual);
+        }
+
+        [Fact]
+        public async Task RemoveAll_Entries()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(RemoveAll_Entries)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(RemoveAll_Entries)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = "client1",
+                    Type = "type1",
+                }
+            ).ToList();
+
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            await _store.RemoveAllAsync(subjectId, "client1");
+
+            var actual = (await _store.GetAllAsync(subjectId)).ToList();
+
+            Assert.Empty(actual);
+        }
+
+        [Fact]
+        public async Task RemoveAll_Entries_WithType()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(RemoveAll_Entries_WithType)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(RemoveAll_Entries_WithType)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = "client1",
+                    Type = "type1",
+                }
+            ).ToList();
+
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            await _store.RemoveAllAsync(subjectId, "client1", "type1");
+
+            var actual = (await _store.GetAllAsync(subjectId)).ToList();
+
+            Assert.Empty(actual);
+        }
+
+        [Fact]
         public async Task GetAsync_Does_Not_Return_Expired_Entries()
         {
             var now = DateTime.Now;
             _clock.Setup(x => x.UtcNow).Returns(now);
             string key = $"{nameof(GetAsync_Does_Not_Return_Expired_Entries)}-{now:O}";
             string expected = "this is a test";
-            var grant = new PersistedGrant { Key = key, Data = expected, Expiration = now.AddSeconds(1) };
+            var grant = new PersistedGrant { Key = key, Data = expected, ClientId = "client1", SubjectId = "sub1", Type = "type1", Expiration = now.AddSeconds(1) };
             await _store.StoreAsync(grant);
 
             var actual = await _store.GetAsync(key);
@@ -89,7 +158,9 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
                 {
                     Key = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId)}-{now:O}-{x}",
                     SubjectId = subjectId,
-                    Expiration = now.AddSeconds(2)
+                    Expiration = now.AddSeconds(2),
+                    ClientId = "client1",
+                    Type = "type1",
                 }
             ).ToList();
             Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
@@ -111,7 +182,9 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
                 {
                     Key = $"{nameof(GetAllAsync_Does_Not_Retrieve_Expired_Grants)}-{now:O}-{x}",
                     SubjectId = subjectId,
-                    Expiration = now.AddSeconds(-1)
+                    Expiration = now.AddSeconds(-1),
+                    ClientId = "client1",
+                    Type = "type1",
                 }
             ).ToList();
             Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
