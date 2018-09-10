@@ -57,17 +57,19 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                     var setKeyforSubject = GetSetKey(grant.SubjectId);
                     var setKeyforClient = GetSetKey(grant.SubjectId, grant.ClientId);
 
-                    var ttlOfClientSet = await this.database.KeyTimeToLiveAsync(setKeyforClient).ConfigureAwait(false);
-                    var ttlOfSubjectSet = await this.database.KeyTimeToLiveAsync(setKeyforSubject).ConfigureAwait(false);
+                    var ttlOfClientSet = this.database.KeyTimeToLiveAsync(setKeyforClient);
+                    var ttlOfSubjectSet = this.database.KeyTimeToLiveAsync(setKeyforSubject);
+
+                    await Task.WhenAll(ttlOfSubjectSet, ttlOfClientSet).ConfigureAwait(false);
 
                     var transaction = this.database.CreateTransaction();
                     transaction.StringSetAsync(grantKey, data, expiresIn);
                     transaction.SetAddAsync(setKeyforSubject, grantKey);
                     transaction.SetAddAsync(setKeyforClient, grantKey);
                     transaction.SetAddAsync(setKey, grantKey);
-                    if ((ttlOfSubjectSet ?? TimeSpan.Zero) <= expiresIn)
+                    if ((ttlOfSubjectSet.Result ?? TimeSpan.Zero) <= expiresIn)
                         transaction.KeyExpireAsync(setKeyforSubject, expiresIn);
-                    if ((ttlOfClientSet ?? TimeSpan.Zero) <= expiresIn)
+                    if ((ttlOfClientSet.Result ?? TimeSpan.Zero) <= expiresIn)
                         transaction.KeyExpireAsync(setKeyforClient, expiresIn);
                     transaction.KeyExpireAsync(setKey, expiresIn);
                     await transaction.ExecuteAsync().ConfigureAwait(false);
