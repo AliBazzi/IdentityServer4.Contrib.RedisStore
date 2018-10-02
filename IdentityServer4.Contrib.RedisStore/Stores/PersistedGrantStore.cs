@@ -82,7 +82,8 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             }
             catch (Exception ex)
             {
-                logger.LogWarning($"exception storing persisted grant to Redis database for subject {grant.SubjectId}, clientId {grant.ClientId}, grantType {grant.Type} : {ex.Message}");
+                logger.LogError($"exception storing persisted grant to Redis database for subject {grant.SubjectId}, clientId {grant.ClientId}, grantType {grant.Type} : {ex.Message}");
+                throw ex;
             }
         }
 
@@ -135,7 +136,8 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"exception removing {key} persisted grant from database: {ex.Message}");
+                logger.LogError($"exception removing {key} persisted grant from database: {ex.Message}");
+                throw ex;
             }
 
         }
@@ -155,7 +157,8 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"removing persisted grants from database for subject {subjectId}, clientId {clientId}: {ex.Message}");
+                logger.LogError($"exception removing persisted grants from database for subject {subjectId}, clientId {clientId}: {ex.Message}");
+                throw ex;
             }
         }
 
@@ -175,7 +178,8 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             }
             catch (Exception ex)
             {
-                logger.LogInformation($"exception removing persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}: {ex.Message}");
+                logger.LogError($"exception removing persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}: {ex.Message}");
+                throw ex;
             }
         }
 
