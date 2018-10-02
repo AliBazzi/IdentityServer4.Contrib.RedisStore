@@ -6,14 +6,14 @@
     <Description>Redis Store for operational data and for Caching of Identity Server 4</Description>
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
-    <AssemblyVersion>1.4.4.1</AssemblyVersion>
-    <PackageReleaseNotes>Add expiration for two Redis sets.</PackageReleaseNotes>
-    <Version>1.4.4.1</Version>
+    <AssemblyVersion>1.4.5</AssemblyVersion>
+    <PackageReleaseNotes>re-throw exceptions if failed writing to Redis.</PackageReleaseNotes>
+    <Version>1.4.5</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
     <Copyright>Ali Bazzi</Copyright>
-    <FileVersion>1.4.4.1</FileVersion>
+    <FileVersion>1.4.5.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
