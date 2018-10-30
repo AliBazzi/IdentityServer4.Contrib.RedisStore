@@ -1,6 +1,5 @@
 ﻿using IdentityServer4.Models;
 using IdentityServer4.Services;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -11,7 +10,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
-using FakeItEasy;
+using Moq;
 
 namespace IdentityServer4.Contrib.RedisStore.Tests.Cache
 {

@@ -1,19 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Description>Redis Store for operational data and for Caching of Identity Server 4</Description>
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
-    <AssemblyVersion>1.4.5</AssemblyVersion>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
     <PackageReleaseNotes>re-throw exceptions if failed writing to Redis.</PackageReleaseNotes>
-    <Version>1.4.5</Version>
+    <Version>2.0.0</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
     <Copyright>Ali Bazzi</Copyright>
-    <FileVersion>1.4.5.0</FileVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -29,10 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityServer4" Version="1.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="StackExchange.Redis.StrongName" Version="1.2.6" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="IdentityServer4" Version="2.3.0-preview1-update2" />
+    <PackageReference Include = "IdentityServer4.Storage" Version="2.3.0-preview1-update2" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.*" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.*" />
   </ItemGroup>
 
 </Project>
