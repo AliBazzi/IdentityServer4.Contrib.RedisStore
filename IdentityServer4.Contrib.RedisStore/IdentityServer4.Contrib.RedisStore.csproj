@@ -7,8 +7,8 @@
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
     <AssemblyVersion>2.0.0</AssemblyVersion>
-    <PackageReleaseNotes>re-throw exceptions if failed writing to Redis.</PackageReleaseNotes>
-    <Version>2.0.0-preview1</Version>
+    <PackageReleaseNotes>support Identity Server 4, v 2.3.0 breaking changes with the introduction of IdentityServer4.Storage.</PackageReleaseNotes>
+    <Version>2.0.0</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
@@ -17,11 +17,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard1.5\IdentityServer4.Contrib.RedisStore.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netstandard2.0\IdentityServer4.Contrib.RedisStore.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.5\IdentityServer4.Contrib.RedisStore.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netstandard2.0\IdentityServer4.Contrib.RedisStore.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,10 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityServer4" Version="2.3.0-preview1-update2" />
-    <PackageReference Include = "IdentityServer4.Storage" Version="2.3.0-preview1-update2" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.*" />
-    <PackageReference Include="StackExchange.Redis" Version="2.0.*" />
+    <PackageReference Include ="IdentityServer4" Version="2.3.*" />
+    <PackageReference Include = "IdentityServer4.Storage" Version="2.3.*" />
+    <PackageReference Include ="Newtonsoft.Json" Version="11.0.*" />
+    <PackageReference Include ="StackExchange.Redis" Version="2.0.*" />
   </ItemGroup>
 
 </Project>
