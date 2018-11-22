@@ -261,5 +261,5 @@ __pycache__/
 *.pyc
 
 .vscode
-*.ds_store
-*.rdb
+**/*.rdb
+**/*.DS_Store
