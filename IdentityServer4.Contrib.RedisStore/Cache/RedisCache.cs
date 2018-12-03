@@ -35,7 +35,7 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
         public async Task<T> GetAsync(string key)
         {
             var cacheKey = GetKey(key);
-            var item = await this.database.StringGetAsync(cacheKey).ConfigureAwait(false);
+            var item = await this.database.StringGetAsync(cacheKey);
             if (item.HasValue)
             {
                 logger.LogDebug($"retrieved {typeof(T).FullName} with Key: {key} from Redis Cache successfully.");
@@ -51,7 +51,7 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
         public async Task SetAsync(string key, T item, TimeSpan expiration)
         {
             var cacheKey = GetKey(key);
-            await this.database.StringSetAsync(cacheKey, Serialize(item), expiration).ConfigureAwait(false);
+            await this.database.StringSetAsync(cacheKey, Serialize(item), expiration);
             logger.LogDebug($"persisted {typeof(T).FullName} with Key: {key} in Redis Cache successfully.");
         }
 
