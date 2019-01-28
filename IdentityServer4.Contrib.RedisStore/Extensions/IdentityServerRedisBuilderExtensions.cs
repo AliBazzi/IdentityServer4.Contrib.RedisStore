@@ -23,6 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddSingleton(options);
 
             builder.Services.AddScoped<RedisMultiplexer<RedisOperationalStoreOptions>>();
+            builder.Services.RemoveAll<IPersistedGrantStore>();
             builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
             return builder;
         }
