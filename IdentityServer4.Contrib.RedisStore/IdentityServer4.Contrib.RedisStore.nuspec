@@ -8,9 +8,9 @@
     <owners>Ali Bazzi</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>breaking change: upgrade the library to support Identity Server 2.3.* and upgrade to .netstandard 2</releaseNotes>
+    <releaseNotes>Add support to use already established connection through ConnectionMultiplexer</releaseNotes>
     <licenceUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore/blob/master/LICENSE</licenceUrl>
-    <copyright>Copyright 2018</copyright>
+    <copyright>Copyright 2019</copyright>
     <tags>IdentityServer IdentityServer4 Redis Store</tags>
   </metadata>
 </package>
