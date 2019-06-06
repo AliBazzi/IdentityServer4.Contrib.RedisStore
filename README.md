@@ -65,6 +65,27 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
+Finally, you have the option of passing an already established connection using `ConnectionMultiplexer` by passing it directly like:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
+
+    services.AddIdentityServer()
+    ...
+    .AddOperationalStore(options =>
+    {
+        options.RedisConnectionMultiplexer = connectionMultiplexer;
+    })
+    .AddRedisCaching(options =>
+    {
+        options.RedisConnectionMultiplexer = connectionMultiplexer;
+    })
+    ...
+}
+```
+
 don't forget to register the caching for specific configuration store you like to apply the caching on after registering the services, like the following:
 
 ```csharp

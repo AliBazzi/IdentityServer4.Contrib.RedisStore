@@ -9,7 +9,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Add support to use already established connection through ConnectionMultiplexer</releaseNotes>
-    <licenceUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore/blob/master/LICENSE</licenceUrl>
     <copyright>Copyright 2019</copyright>
     <tags>IdentityServer IdentityServer4 Redis Store</tags>
   </metadata>

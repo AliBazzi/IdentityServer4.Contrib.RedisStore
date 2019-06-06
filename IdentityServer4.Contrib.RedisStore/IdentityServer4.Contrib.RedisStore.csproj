@@ -12,6 +12,7 @@
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Ali Bazzi</Copyright>
     <FileVersion>2.1.0.0</FileVersion>
   </PropertyGroup>
