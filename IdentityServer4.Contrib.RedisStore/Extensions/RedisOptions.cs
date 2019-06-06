@@ -19,6 +19,32 @@ namespace IdentityServer4.Contrib.RedisStore
         public string RedisConnectionString { get; set; }
 
         /// <summary>
+        /// Connection Multiplexer for connecting to Redis Instance.
+        /// When provided, the values for <see cref="RedisConnectionString"/> and
+        /// <see cref="ConfigurationOptions"/> are ignored.
+        /// </summary>
+        public IConnectionMultiplexer RedisConnectionMultiplexer
+        {
+            get
+            {
+                return this.multiplexer.Value;
+            }
+            set
+            {
+                // if someone already asked for the multiplexer before, we
+                // may have already connected using the connection string.
+                // in that case we must disconnect so we don't leak anything.
+                if (this.multiplexer.IsValueCreated && this.multiplexer.Value != this.providedMultiplexer)
+                {
+                    this.multiplexer.Value.Dispose();
+                    this.multiplexer = new Lazy<IConnectionMultiplexer>(() => value);
+                }
+
+                this.providedMultiplexer = value;
+            }
+        }
+
+        /// <summary>
         ///The specific Db number to connect to, default is -1.
         /// </summary>
         public int Db { get; set; } = -1;
@@ -48,11 +74,22 @@ namespace IdentityServer4.Contrib.RedisStore
         private Lazy<IConnectionMultiplexer> GetConnectionMultiplexer()
         {
             return new Lazy<IConnectionMultiplexer>(
-                () => string.IsNullOrEmpty(this.RedisConnectionString)
-                    ? ConnectionMultiplexer.Connect(this.ConfigurationOptions)
-                    : ConnectionMultiplexer.Connect(this.RedisConnectionString));
+                () =>
+                {
+                    // if the user provided a multiplexer, we should use it
+                    if (this.providedMultiplexer != null)
+                    {
+                        return this.providedMultiplexer;
+                    }
+
+                    // otherwise we must make our own connection
+                    return string.IsNullOrEmpty(this.RedisConnectionString)
+                        ? ConnectionMultiplexer.Connect(this.ConfigurationOptions)
+                        : ConnectionMultiplexer.Connect(this.RedisConnectionString);
+                });
         }
 
+        private IConnectionMultiplexer providedMultiplexer = null;
         private Lazy<IConnectionMultiplexer> multiplexer = null;
 
         internal IConnectionMultiplexer Multiplexer => this.multiplexer.Value;
