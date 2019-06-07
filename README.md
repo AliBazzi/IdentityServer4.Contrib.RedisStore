@@ -40,7 +40,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-You can pass also ConfigurationOptions instance, which contains the configuration of Redis store:
+As an alternative, you can pass ConfigurationOptions instance, which contains the configuration of Redis store:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
