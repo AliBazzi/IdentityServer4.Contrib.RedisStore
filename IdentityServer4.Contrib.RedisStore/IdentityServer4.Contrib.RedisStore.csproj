@@ -1,28 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Description>Redis Store for operational data and for Caching of Identity Server 4</Description>
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
-    <AssemblyVersion>2.1.0</AssemblyVersion>
-    <PackageReleaseNotes>Add support to use already established connection through ConnectionMultiplexer.</PackageReleaseNotes>
-    <Version>2.1.0</Version>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
+    <PackageReleaseNotes>preview version to support Indentity Server 4 Version 3.</PackageReleaseNotes>
+    <Version>3.0.0-preview1</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Ali Bazzi</Copyright>
-    <FileVersion>2.1.0.0</FileVersion>
+    <FileVersion>3.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard2.0\IdentityServer4.Contrib.RedisStore.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netcoreapp3.0\IdentityServer4.Contrib.RedisStore.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard2.0\IdentityServer4.Contrib.RedisStore.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netcoreapp3.0\IdentityServer4.Contrib.RedisStore.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,10 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include ="IdentityServer4" Version="2.3.*" />
-    <PackageReference Include = "IdentityServer4.Storage" Version="2.3.*" />
-    <PackageReference Include ="Newtonsoft.Json" Version="12.0.*" />
-    <PackageReference Include ="StackExchange.Redis" Version="2.0.*" />
+    <PackageReference Include="IdentityServer4" Version="3.0.0-preview7.33" />
+    <PackageReference Include="IdentityServer4.Storage" Version="3.0.0-preview7.33" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.*" />
+    <PackageReference Include="StackExchange.Redis" Version="2.0.*" />
   </ItemGroup>
 
 </Project>
