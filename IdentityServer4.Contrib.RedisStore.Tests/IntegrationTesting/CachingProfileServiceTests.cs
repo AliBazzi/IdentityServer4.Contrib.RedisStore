@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -63,17 +65,40 @@ namespace IdentityServer4.Contrib.RedisStore.Tests
 
             var httpHandler = server.CreateHandler();
 
-            var discoveryClient = new DiscoveryClient("https://idp", httpHandler);
-            var doc = await discoveryClient.GetAsync();
+            var discoveryClient = new HttpClient(httpHandler);
+            discoveryClient.BaseAddress = new Uri("https://idp");
+            var docs = await discoveryClient.GetDiscoveryDocumentAsync();
 
-            var client = new TokenClient(doc.TokenEndpoint, "client1", "secret", httpHandler);
-            var tokenResponse = await client.RequestResourceOwnerPasswordAsync(userName: "test", password: "test");
+            var client = new HttpClient(httpHandler);
+            var tokenResponse = await client.RequestPasswordTokenAsync(new PasswordTokenRequest
+            {
+                Address = docs.TokenEndpoint,
+                ClientId = "client1",
+                ClientSecret = "secret",
+                Scope = "api1",
+                UserName = "test",
+                Password = "test"
+            });
 
-            var introspection = new IntrospectionClient(doc.IntrospectionEndpoint, "api1", "secret", httpHandler);
-
+            var introspection = new HttpClient(httpHandler);
+            var introspectionResponse = await introspection.IntrospectTokenAsync(new TokenIntrospectionRequest
+            {
+                Address = docs.IntrospectionEndpoint,
+                Token = tokenResponse.AccessToken,
+                ClientId = "api1",
+                ClientSecret = "secret"
+            });
             foreach (var _ in Enumerable.Range(1, 10))
-                (await introspection.SendAsync(new IntrospectionRequest { Token = tokenResponse.AccessToken })).IsActive.Should().BeTrue();
-
+            {
+                var result = await introspection.IntrospectTokenAsync(new TokenIntrospectionRequest
+                {
+                    Address = docs.IntrospectionEndpoint,
+                    Token = tokenResponse.AccessToken,
+                    ClientId = "api1",
+                    ClientSecret = "secret"
+                });
+                result.IsActive.Should().BeTrue();
+            }
             logger.AccessCount["Cache hit for 1"].Should().Equals(10);
         }
 
