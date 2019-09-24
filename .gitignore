@@ -263,3 +263,5 @@ __pycache__/
 .vscode
 **/*.rdb
 **/*.DS_Store
+
+**/.ionide

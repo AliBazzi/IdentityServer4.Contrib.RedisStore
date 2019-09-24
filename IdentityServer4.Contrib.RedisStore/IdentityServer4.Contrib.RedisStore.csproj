@@ -7,8 +7,8 @@
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
     <AssemblyVersion>3.0.0</AssemblyVersion>
-    <PackageReleaseNotes>preview version to support Indentity Server 4 Version 3.</PackageReleaseNotes>
-    <Version>3.0.0-preview2</Version>
+    <PackageReleaseNotes>support Indentity Server 4 Version 3.</PackageReleaseNotes>
+    <Version>3.0.0</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
@@ -30,8 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityServer4" Version="3.0.0" />
-    <PackageReference Include="IdentityServer4.Storage" Version="3.0.0" />
+    <PackageReference Include="IdentityServer4" Version="3.0.*" />
+    <PackageReference Include="IdentityServer4.Storage" Version="3.0.*" />
     <PackageReference Include="StackExchange.Redis" Version="2.0.*" />
   </ItemGroup>
 
