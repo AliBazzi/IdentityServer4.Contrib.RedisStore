@@ -38,12 +38,12 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
             var item = await this.database.StringGetAsync(cacheKey);
             if (item.HasValue)
             {
-                logger.LogDebug($"retrieved {typeof(T).FullName} with Key: {key} from Redis Cache successfully.");
+                logger.LogDebug("retrieved {type} with Key: {key} from Redis Cache successfully.", typeof(T).FullName, key);
                 return Deserialize(item);
             }
             else
             {
-                logger.LogDebug($"missed {typeof(T).FullName} with Key: {key} from Redis Cache.");
+                logger.LogDebug("missed {type} with Key: {key} from Redis Cache.", typeof(T).FullName, key);
                 return default(T);
             }
         }
@@ -52,7 +52,7 @@ namespace IdentityServer4.Contrib.RedisStore.Cache
         {
             var cacheKey = GetKey(key);
             await this.database.StringSetAsync(cacheKey, Serialize(item), expiration);
-            logger.LogDebug($"persisted {typeof(T).FullName} with Key: {key} in Redis Cache successfully.");
+            logger.LogDebug("persisted {type} with Key: {key} in Redis Cache successfully.", typeof(T).FullName, key);
         }
 
         #region Json
