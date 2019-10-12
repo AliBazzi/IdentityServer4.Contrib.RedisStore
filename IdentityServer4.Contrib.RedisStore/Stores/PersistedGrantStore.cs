@@ -168,7 +168,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             {
                 var setKey = GetSetKey(subjectId, clientId, type);
                 var grantsKeys = await this.database.SetMembersAsync(setKey);
-                logger.LogDebug("removing {grantKeysCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}", grantsKeys.Count(), subjectId, clientId);
+                logger.LogDebug("removing {grantKeysCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}", grantsKeys.Count(), subjectId, clientId, type);
                 if (!grantsKeys.Any()) return;
                 var transaction = this.database.CreateTransaction();
                 transaction.KeyDeleteAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).Concat(new RedisKey[] { setKey }).ToArray());
