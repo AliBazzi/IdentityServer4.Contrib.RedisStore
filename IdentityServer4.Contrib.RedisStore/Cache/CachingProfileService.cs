@@ -49,15 +49,22 @@ namespace IdentityServer4.Services
         {
             var key = $"{options.KeyPrefix}{options.KeySelector(context)}";
 
-            var entry = await cache.GetAsync(key, options.Expiration,
-                          async () =>
-                          {
-                              await inner.IsActiveAsync(context);
-                              return new IsActiveContextCacheEntry { IsActive = context.IsActive };
-                          },
-                          logger);
+            if (options.ShouldCache(context))
+            {
+                var entry = await cache.GetAsync(key, options.Expiration,
+                              async () =>
+                              {
+                                  await inner.IsActiveAsync(context);
+                                  return new IsActiveContextCacheEntry { IsActive = context.IsActive };
+                              },
+                              logger);
 
-            context.IsActive = entry.IsActive;
+                context.IsActive = entry.IsActive;
+            }
+            else
+            {
+                await inner.IsActiveAsync(context);
+            }
         }
     }
 
