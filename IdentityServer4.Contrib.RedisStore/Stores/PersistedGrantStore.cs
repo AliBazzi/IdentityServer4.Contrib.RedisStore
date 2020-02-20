@@ -83,7 +83,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             catch (Exception ex)
             {
                 logger.LogError(ex, "exception storing persisted grant to Redis database for subject {subjectId}, clientId {clientId}, grantType {grantType}", grant.SubjectId, grant.ClientId, grant.Type);
-                throw ex;
+                throw;
             }
         }
 
@@ -137,7 +137,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             catch (Exception ex)
             {
                 logger.LogError(ex, "exception removing {key} persisted grant from database", key);
-                throw ex;
+                throw;
             }
 
         }
@@ -158,7 +158,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             catch (Exception ex)
             {
                 logger.LogError(ex, "exception removing persisted grants from database for subject {subjectId}, clientId {clientId}", subjectId, clientId);
-                throw ex;
+                throw;
             }
         }
 
@@ -179,7 +179,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             catch (Exception ex)
             {
                 logger.LogError(ex, "exception removing persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}", subjectId, clientId, type);
-                throw ex;
+                throw;
             }
         }
 
