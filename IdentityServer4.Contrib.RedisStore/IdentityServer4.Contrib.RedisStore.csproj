@@ -32,7 +32,7 @@
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="3.0.*" />
     <PackageReference Include="IdentityServer4.Storage" Version="3.0.*" />
-    <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
+    <PackageReference Include="StackExchange.Redis" Version="2.1.0" />
   </ItemGroup>
 
 </Project>
