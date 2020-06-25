@@ -102,6 +102,60 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
         }
 
         [Fact]
+        public async Task RemoveAll_Entries_With_SessionId()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(RemoveAll_Entries_With_SessionId)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(RemoveAll_Entries_With_SessionId)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = "client1",
+                    Type = "type1",
+                    SessionId = $"session{x}"
+                }
+            ).ToList();
+
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            await _store.RemoveAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, ClientId = "client1", SessionId = "session1" });
+
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId })).ToList();
+
+            actual.Should().HaveCount(4);
+        }
+
+        [Fact]
+        public async Task RemoveAll_Entries_With_Type()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(RemoveAll_Entries_With_Type)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(RemoveAll_Entries_With_Type)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = "client1",
+                    Type = x > 2 ? "type1" : "type2",
+                    SessionId = $"session{x}"
+                }
+            ).ToList();
+
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            await _store.RemoveAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, ClientId = "client1", Type = "type2" });
+
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId })).ToList();
+
+            actual.Should().HaveCount(2);
+        }
+
+        [Fact]
         public async Task RemoveAll_Entries_WithType()
         {
             var now = DateTime.Now;
