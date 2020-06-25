@@ -27,11 +27,16 @@ namespace IdentityServer4.Contrib.RedisStore.Tests
                 {
                     services.AddIdentityServer()
                     .AddDeveloperSigningCredential(persistKey: false)
+                    .AddInMemoryApiScopes(new List<ApiScope>
+                    {
+                        new ApiScope("api1")
+                    })
                     .AddInMemoryApiResources(new List<ApiResource>
                     {
                         new ApiResource("api1")
                         {
-                            ApiSecrets = { new Secret("secret".Sha256())}
+                            ApiSecrets = { new Secret("secret".Sha256())},
+                            Scopes = { "api1" }
                         }
                     })
                     .AddInMemoryClients(new List<Client>
