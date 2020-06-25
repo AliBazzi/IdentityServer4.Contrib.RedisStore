@@ -16,13 +16,13 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
     /// </summary>
     public class PersistedGrantStore : IPersistedGrantStore
     {
-        private readonly RedisOperationalStoreOptions options;
+        protected readonly RedisOperationalStoreOptions options;
 
-        private readonly IDatabase database;
+        protected readonly IDatabase database;
 
-        private readonly ILogger<PersistedGrantStore> logger;
+        protected readonly ILogger<PersistedGrantStore> logger;
 
-        private ISystemClock clock;
+        protected ISystemClock clock;
 
         public PersistedGrantStore(RedisMultiplexer<RedisOperationalStoreOptions> multiplexer, ILogger<PersistedGrantStore> logger, ISystemClock clock)
         {
@@ -34,15 +34,15 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             this.clock = clock;
         }
 
-        private string GetKey(string key) => $"{this.options.KeyPrefix}{key}";
+        protected string GetKey(string key) => $"{this.options.KeyPrefix}{key}";
 
-        private string GetSetKey(string subjectId) => $"{this.options.KeyPrefix}{subjectId}";
+        protected string GetSetKey(string subjectId) => $"{this.options.KeyPrefix}{subjectId}";
 
-        private string GetSetKey(string subjectId, string clientId) => $"{this.options.KeyPrefix}{subjectId}:{clientId}";
+        protected string GetSetKey(string subjectId, string clientId) => $"{this.options.KeyPrefix}{subjectId}:{clientId}";
 
-        private string GetSetKey(string subjectId, string clientId, string type) => $"{this.options.KeyPrefix}{subjectId}:{clientId}:{type}";
+        protected string GetSetKey(string subjectId, string clientId, string type) => $"{this.options.KeyPrefix}{subjectId}:{clientId}:{type}";
 
-        public async Task StoreAsync(PersistedGrant grant)
+        public virtual async Task StoreAsync(PersistedGrant grant)
         {
             if (grant == null)
                 throw new ArgumentNullException(nameof(grant));
@@ -87,24 +87,40 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             }
         }
 
-        public async Task<PersistedGrant> GetAsync(string key)
+        public virtual async Task<PersistedGrant> GetAsync(string key)
         {
-            var data = await this.database.StringGetAsync(GetKey(key));
-            logger.LogDebug("{key} found in database: {hasValue}", key, data.HasValue);
-            return data.HasValue ? ConvertFromJson(data) : null;
+            try
+            {
+                var data = await this.database.StringGetAsync(GetKey(key));
+                logger.LogDebug("{key} found in database: {hasValue}", key, data.HasValue);
+                return data.HasValue ? ConvertFromJson(data) : null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "exception retrieving grant for key {key}", key);
+                throw;
+            }
         }
 
-        public async Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)
+        public virtual async Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)
         {
-            var setKey = GetSetKey(subjectId);
-            var (grants, keysToDelete) = await GetGrants(setKey);
-            if (keysToDelete.Any())
-                await this.database.SetRemoveAsync(setKey, keysToDelete.ToArray());
-            logger.LogDebug("{grantsCount} persisted grants found for {subjectId}", grants.Count(), subjectId);
-            return grants.Where(_ => _.HasValue).Select(_ => ConvertFromJson(_));
+            try
+            {
+                var setKey = GetSetKey(subjectId);
+                var (grants, keysToDelete) = await GetGrants(setKey);
+                if (keysToDelete.Any())
+                    await this.database.SetRemoveAsync(setKey, keysToDelete.ToArray());
+                logger.LogDebug("{grantsCount} persisted grants found for {subjectId}", grants.Count(), subjectId);
+                return grants.Where(_ => _.HasValue).Select(_ => ConvertFromJson(_));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "exception while retrieving grants");
+                throw;
+            }
         }
 
-        private async Task<(IEnumerable<RedisValue> grants, IEnumerable<RedisValue> keysToDelete)> GetGrants(string setKey)
+        protected async Task<(IEnumerable<RedisValue> grants, IEnumerable<RedisValue> keysToDelete)> GetGrants(string setKey)
         {
             var grantsKeys = await this.database.SetMembersAsync(setKey);
             if (!grantsKeys.Any())
@@ -115,7 +131,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             return (grants, keysToDelete);
         }
 
-        public async Task RemoveAsync(string key)
+        public virtual async Task RemoveAsync(string key)
         {
             try
             {
@@ -142,7 +158,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
 
         }
 
-        public async Task RemoveAllAsync(string subjectId, string clientId)
+        public virtual async Task RemoveAllAsync(string subjectId, string clientId)
         {
             try
             {
@@ -162,7 +178,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             }
         }
 
-        public async Task RemoveAllAsync(string subjectId, string clientId, string type)
+        public virtual async Task RemoveAllAsync(string subjectId, string clientId, string type)
         {
             try
             {
@@ -184,12 +200,12 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
         }
 
         #region Json
-        private static string ConvertToJson(PersistedGrant grant)
+        protected static string ConvertToJson(PersistedGrant grant)
         {
             return JsonConvert.SerializeObject(grant);
         }
 
-        private static PersistedGrant ConvertFromJson(string data)
+        protected static PersistedGrant ConvertFromJson(string data)
         {
             return JsonConvert.DeserializeObject<PersistedGrant>(data);
         }

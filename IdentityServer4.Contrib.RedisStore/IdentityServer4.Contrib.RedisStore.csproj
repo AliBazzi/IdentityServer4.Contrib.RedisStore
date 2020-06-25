@@ -6,15 +6,15 @@
     <Description>Redis Store for operational data and for Caching of Identity Server 4</Description>
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
-    <AssemblyVersion>3.1.1</AssemblyVersion>
-    <PackageReleaseNotes>Add Caching predicate for ProfileServiceCaching, fixate StackExchange.Redis on 2.0.519.</PackageReleaseNotes>
-    <Version>3.1.1</Version>
+    <AssemblyVersion>3.1.2</AssemblyVersion>
+    <PackageReleaseNotes>Allow extensibility for PersistedGrantStore.</PackageReleaseNotes>
+    <Version>3.1.2</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Ali Bazzi</Copyright>
-    <FileVersion>3.1.1.0</FileVersion>
+    <FileVersion>3.1.2.0</FileVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -40,7 +40,7 @@
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="3.0.*" />
     <PackageReference Include="IdentityServer4.Storage" Version="3.0.*" />
-    <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
+    <PackageReference Include="StackExchange.Redis" Version="2.1.*" />
   </ItemGroup>
 
 </Project>
