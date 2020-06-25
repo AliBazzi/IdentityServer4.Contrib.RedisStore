@@ -6,7 +6,7 @@
     <Description>Redis Store for operational data and for Caching of Identity Server 4</Description>
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
-    <AssemblyVersion>4.0.0-RC</AssemblyVersion>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <PackageReleaseNotes>Supports Identity Server 4 v4.</PackageReleaseNotes>
     <Version>4.0.0-RC</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
