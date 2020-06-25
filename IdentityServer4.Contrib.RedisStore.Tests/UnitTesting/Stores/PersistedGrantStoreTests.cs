@@ -1,13 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using IdentityServer4.Contrib.RedisStore.Stores;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
@@ -94,9 +94,9 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
 
             Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
 
-            await _store.RemoveAllAsync(subjectId, "client1");
+            await _store.RemoveAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, ClientId = "client1" });
 
-            var actual = (await _store.GetAllAsync(subjectId)).ToList();
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId })).ToList();
 
             Assert.Empty(actual);
         }
@@ -120,9 +120,9 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
 
             Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
 
-            await _store.RemoveAllAsync(subjectId, "client1", "type1");
+            await _store.RemoveAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, ClientId = "client1", Type = "type1" });
 
-            var actual = (await _store.GetAllAsync(subjectId)).ToList();
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId })).ToList();
 
             Assert.Empty(actual);
         }
@@ -165,7 +165,7 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
             ).ToList();
             Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
 
-            var actual = (await _store.GetAllAsync(subjectId)).ToList();
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId })).ToList();
 
             Assert.NotNull(actual);
             actual.Should().BeEquivalentTo(expected);
@@ -189,7 +189,7 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
             ).ToList();
             Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
 
-            var actual = (await _store.GetAllAsync(subjectId)).ToList();
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId })).ToList();
 
             Assert.NotNull(actual);
             Assert.Empty(actual);

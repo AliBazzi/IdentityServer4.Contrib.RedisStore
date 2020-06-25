@@ -1,4 +1,5 @@
-﻿using IdentityServer4.Models;
+﻿using IdentityServer4.Extensions;
+using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
@@ -16,13 +17,13 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
     /// </summary>
     public class PersistedGrantStore : IPersistedGrantStore
     {
-        private readonly RedisOperationalStoreOptions options;
+        protected readonly RedisOperationalStoreOptions options;
 
-        private readonly IDatabase database;
+        protected readonly IDatabase database;
 
-        private readonly ILogger<PersistedGrantStore> logger;
+        protected readonly ILogger<PersistedGrantStore> logger;
 
-        private ISystemClock clock;
+        protected ISystemClock clock;
 
         public PersistedGrantStore(RedisMultiplexer<RedisOperationalStoreOptions> multiplexer, ILogger<PersistedGrantStore> logger, ISystemClock clock)
         {
@@ -34,15 +35,17 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             this.clock = clock;
         }
 
-        private string GetKey(string key) => $"{this.options.KeyPrefix}{key}";
+        protected string GetKey(string key) => $"{this.options.KeyPrefix}{key}";
 
-        private string GetSetKey(string subjectId) => $"{this.options.KeyPrefix}{subjectId}";
+        protected string GetSetKey(string subjectId) => $"{this.options.KeyPrefix}{subjectId}";
 
-        private string GetSetKey(string subjectId, string clientId) => $"{this.options.KeyPrefix}{subjectId}:{clientId}";
+        protected string GetSetKey(string subjectId, string clientId) => $"{this.options.KeyPrefix}{subjectId}:{clientId}";
 
-        private string GetSetKey(string subjectId, string clientId, string type) => $"{this.options.KeyPrefix}{subjectId}:{clientId}:{type}";
+        protected string GetSetKeyWithType(string subjectId, string clientId, string type) => $"{this.options.KeyPrefix}{subjectId}:{clientId}:{type}";
 
-        public async Task StoreAsync(PersistedGrant grant)
+        protected string GetSetKeyWithSession(string subjectId, string clientId, string sessionId) => $"{this.options.KeyPrefix}{subjectId}:{clientId}:{sessionId}";
+
+        public virtual async Task StoreAsync(PersistedGrant grant)
         {
             if (grant == null)
                 throw new ArgumentNullException(nameof(grant));
@@ -53,58 +56,88 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                 var expiresIn = grant.Expiration - this.clock.UtcNow;
                 if (!string.IsNullOrEmpty(grant.SubjectId))
                 {
-                    var setKey = GetSetKey(grant.SubjectId, grant.ClientId, grant.Type);
+                    var setKeyforType = GetSetKeyWithType(grant.SubjectId, grant.ClientId, grant.Type);
                     var setKeyforSubject = GetSetKey(grant.SubjectId);
                     var setKeyforClient = GetSetKey(grant.SubjectId, grant.ClientId);
+                    var setKetforSession = GetSetKeyWithSession(grant.SubjectId, grant.ClientId, grant.SessionId);
 
                     var ttlOfClientSet = this.database.KeyTimeToLiveAsync(setKeyforClient);
                     var ttlOfSubjectSet = this.database.KeyTimeToLiveAsync(setKeyforSubject);
+                    var ttlofSessionSet = this.database.KeyTimeToLiveAsync(setKetforSession);
 
-                    await Task.WhenAll(ttlOfSubjectSet, ttlOfClientSet);
+                    await Task.WhenAll(ttlOfSubjectSet, ttlOfClientSet, ttlofSessionSet);
 
                     var transaction = this.database.CreateTransaction();
                     transaction.StringSetAsync(grantKey, data, expiresIn);
                     transaction.SetAddAsync(setKeyforSubject, grantKey);
                     transaction.SetAddAsync(setKeyforClient, grantKey);
-                    transaction.SetAddAsync(setKey, grantKey);
+                    transaction.SetAddAsync(setKeyforType, grantKey);
+                    if (!grant.SessionId.IsNullOrEmpty())
+                        transaction.SetAddAsync(setKetforSession, grantKey);
                     if ((ttlOfSubjectSet.Result ?? TimeSpan.Zero) <= expiresIn)
                         transaction.KeyExpireAsync(setKeyforSubject, expiresIn);
                     if ((ttlOfClientSet.Result ?? TimeSpan.Zero) <= expiresIn)
                         transaction.KeyExpireAsync(setKeyforClient, expiresIn);
-                    transaction.KeyExpireAsync(setKey, expiresIn);
+                    if (!grant.SessionId.IsNullOrEmpty() && (ttlofSessionSet.Result ?? TimeSpan.Zero) <= expiresIn)
+                        transaction.KeyExpireAsync(setKetforSession, expiresIn);
+                    transaction.KeyExpireAsync(setKeyforType, expiresIn);
                     await transaction.ExecuteAsync();
                 }
                 else
                 {
                     await this.database.StringSetAsync(grantKey, data, expiresIn);
                 }
-                logger.LogDebug("grant for subject {subjectId}, clientId {clientId}, grantType {grantType} persisted successfully", grant.SubjectId, grant.ClientId, grant.Type);
+                logger.LogDebug("grant for subject {subjectId}, clientId {clientId}, grantType {grantType} and sessionId {session} persisted successfully", grant.SubjectId, grant.ClientId, grant.Type, grant.SessionId);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "exception storing persisted grant to Redis database for subject {subjectId}, clientId {clientId}, grantType {grantType}", grant.SubjectId, grant.ClientId, grant.Type);
+                logger.LogError(ex, "exception storing persisted grant to Redis database for subject {subjectId}, clientId {clientId}, grantType {grantType} and session {sessionId}", grant.SubjectId, grant.ClientId, grant.Type, grant.SessionId);
                 throw;
             }
         }
 
-        public async Task<PersistedGrant> GetAsync(string key)
+        public virtual async Task<PersistedGrant> GetAsync(string key)
         {
-            var data = await this.database.StringGetAsync(GetKey(key));
-            logger.LogDebug("{key} found in database: {hasValue}", key, data.HasValue);
-            return data.HasValue ? ConvertFromJson(data) : null;
+            try
+            {
+                var data = await this.database.StringGetAsync(GetKey(key));
+                logger.LogDebug("{key} found in database: {hasValue}", key, data.HasValue);
+                return data.HasValue ? ConvertFromJson(data) : null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "exception retrieving grant for key {key}", key);
+                throw;
+            }
         }
 
-        public async Task<IEnumerable<PersistedGrant>> GetAllAsync(string subjectId)
+        public virtual async Task<IEnumerable<PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
         {
-            var setKey = GetSetKey(subjectId);
-            var (grants, keysToDelete) = await GetGrants(setKey);
-            if (keysToDelete.Any())
-                await this.database.SetRemoveAsync(setKey, keysToDelete.ToArray());
-            logger.LogDebug("{grantsCount} persisted grants found for {subjectId}", grants.Count(), subjectId);
-            return grants.Where(_ => _.HasValue).Select(_ => ConvertFromJson(_));
+            try
+            {
+                var setKey = GetSetKey(filter);
+                var (grants, keysToDelete) = await GetGrants(setKey);
+                if (keysToDelete.Any())
+                {
+                    var keys = keysToDelete.ToArray();
+                    var transaction = this.database.CreateTransaction();
+                    transaction.SetRemoveAsync(GetSetKey(filter.SubjectId), keys);
+                    transaction.SetRemoveAsync(GetSetKey(filter.SubjectId, filter.ClientId), keys);
+                    transaction.SetRemoveAsync(GetSetKeyWithType(filter.SubjectId, filter.ClientId, filter.Type), keys);
+                    transaction.SetRemoveAsync(GetSetKeyWithSession(filter.SubjectId, filter.ClientId, filter.SessionId), keys);
+                    await transaction.ExecuteAsync();
+                }
+                logger.LogDebug("{grantsCount} persisted grants found for {subjectId}", grants.Count(), filter.SubjectId);
+                return grants.Where(_ => _.HasValue).Select(_ => ConvertFromJson(_)).Where(_ => IsMatch(_, filter));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "exception while retrieving grants");
+                throw;
+            }
         }
 
-        private async Task<(IEnumerable<RedisValue> grants, IEnumerable<RedisValue> keysToDelete)> GetGrants(string setKey)
+        protected virtual async Task<(IEnumerable<RedisValue> grants, IEnumerable<RedisValue> keysToDelete)> GetGrants(string setKey)
         {
             var grantsKeys = await this.database.SetMembersAsync(setKey);
             if (!grantsKeys.Any())
@@ -115,7 +148,7 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
             return (grants, keysToDelete);
         }
 
-        public async Task RemoveAsync(string key)
+        public virtual async Task RemoveAsync(string key)
         {
             try
             {
@@ -131,7 +164,8 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
                 transaction.KeyDeleteAsync(grantKey);
                 transaction.SetRemoveAsync(GetSetKey(grant.SubjectId), grantKey);
                 transaction.SetRemoveAsync(GetSetKey(grant.SubjectId, grant.ClientId), grantKey);
-                transaction.SetRemoveAsync(GetSetKey(grant.SubjectId, grant.ClientId, grant.Type), grantKey);
+                transaction.SetRemoveAsync(GetSetKeyWithType(grant.SubjectId, grant.ClientId, grant.Type), grantKey);
+                transaction.SetRemoveAsync(GetSetKeyWithSession(grant.SubjectId, grant.ClientId, grant.SessionId), grantKey);
                 await transaction.ExecuteAsync();
             }
             catch (Exception ex)
@@ -142,54 +176,51 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
 
         }
 
-        public async Task RemoveAllAsync(string subjectId, string clientId)
+        public virtual async Task RemoveAllAsync(PersistedGrantFilter filter)
         {
             try
             {
-                var setKey = GetSetKey(subjectId, clientId);
-                var grantsKeys = await this.database.SetMembersAsync(setKey);
-                logger.LogDebug("removing {grantsCount} persisted grants from database for subject {subjectId}, clientId {clientId}", grantsKeys.Count(), subjectId, clientId);
-                if (!grantsKeys.Any()) return;
+                filter.Validate();
+                var setKey = GetSetKey(filter);
+                var grants = await this.database.SetMembersAsync(setKey);
+                logger.LogDebug("removing {grantKeysCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type} and session {session}", grants.Count(), filter.SubjectId, filter.ClientId, filter.Type, filter.SessionId);
+                if (!grants.Any()) return;
                 var transaction = this.database.CreateTransaction();
-                transaction.KeyDeleteAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).Concat(new RedisKey[] { setKey }).ToArray());
-                transaction.SetRemoveAsync(GetSetKey(subjectId), grantsKeys);
+                transaction.KeyDeleteAsync(grants.Select(_ => (RedisKey)_.ToString()).Concat(new RedisKey[] { setKey }).ToArray());
+                transaction.SetRemoveAsync(GetSetKey(filter.SubjectId), grants);
+                transaction.SetRemoveAsync(GetSetKey(filter.SubjectId, filter.ClientId), grants);
+                transaction.SetRemoveAsync(GetSetKeyWithType(filter.SubjectId, filter.ClientId, filter.Type), grants);
+                transaction.SetRemoveAsync(GetSetKeyWithSession(filter.SubjectId, filter.ClientId, filter.SessionId), grants);
                 await transaction.ExecuteAsync();
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "exception removing persisted grants from database for subject {subjectId}, clientId {clientId}", subjectId, clientId);
+                logger.LogError(ex, "exception removing persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type} and session {session}", filter.SubjectId, filter.ClientId, filter.Type, filter.SessionId);
                 throw;
             }
         }
 
-        public async Task RemoveAllAsync(string subjectId, string clientId, string type)
+        protected virtual string GetSetKey(PersistedGrantFilter filter) =>
+            (!filter.ClientId.IsNullOrEmpty(), !filter.SessionId.IsNullOrEmpty(), !filter.Type.IsNullOrEmpty()) switch
+            {
+                (true, true, false) => GetSetKeyWithSession(filter.SubjectId, filter.ClientId, filter.SessionId),
+                (true, _, false) => GetSetKey(filter.SubjectId, filter.ClientId),
+                (true, _, true) => GetSetKeyWithType(filter.SubjectId, filter.ClientId, filter.Type),
+                _ => GetSetKey(filter.SubjectId),
+            };
+
+        protected bool IsMatch(PersistedGrant grant, PersistedGrantFilter filter)
         {
-            try
-            {
-                var setKey = GetSetKey(subjectId, clientId, type);
-                var grantsKeys = await this.database.SetMembersAsync(setKey);
-                logger.LogDebug("removing {grantKeysCount} persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}", grantsKeys.Count(), subjectId, clientId, type);
-                if (!grantsKeys.Any()) return;
-                var transaction = this.database.CreateTransaction();
-                transaction.KeyDeleteAsync(grantsKeys.Select(_ => (RedisKey)_.ToString()).Concat(new RedisKey[] { setKey }).ToArray());
-                transaction.SetRemoveAsync(GetSetKey(subjectId, clientId), grantsKeys);
-                transaction.SetRemoveAsync(GetSetKey(subjectId), grantsKeys);
-                await transaction.ExecuteAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "exception removing persisted grants from database for subject {subjectId}, clientId {clientId}, grantType {type}", subjectId, clientId, type);
-                throw;
-            }
+            return grant.SubjectId == filter.SubjectId && grant.Type == filter.Type && grant.SessionId == filter.SessionId && grant.ClientId == filter.ClientId;
         }
 
         #region Json
-        private static string ConvertToJson(PersistedGrant grant)
+        protected static string ConvertToJson(PersistedGrant grant)
         {
             return JsonConvert.SerializeObject(grant);
         }
 
-        private static PersistedGrant ConvertFromJson(string data)
+        protected static PersistedGrant ConvertFromJson(string data)
         {
             return JsonConvert.DeserializeObject<PersistedGrant>(data);
         }
