@@ -172,6 +172,128 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Stores
         }
 
         [Fact]
+        public async Task GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = $"client{x}",
+                    Type = "type1",
+                }
+            ).ToList();
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, ClientId = "client1" })).ToList();
+
+            Assert.NotNull(actual);
+            actual.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_Type()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_Type)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_Type)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = $"client{x}",
+                    Type = "type1",
+                }
+            ).ToList();
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, Type = "type1" })).ToList();
+
+            Assert.NotNull(actual);
+            actual.Should().HaveCount(5);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_And_Type()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_And_Type)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_And_Type)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = $"client{x}",
+                    Type = "type1",
+                }
+            ).ToList();
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, ClientId = "client1", Type = "type1" })).ToList();
+
+            Assert.NotNull(actual);
+            actual.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_and_SessionId()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_and_SessionId)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_and_SessionId)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = $"client{x}",
+                    SessionId = "session1",
+                    Type = "type1",
+                }
+            ).ToList();
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, ClientId = "client1", SessionId = "session1" })).ToList();
+
+            Assert.NotNull(actual);
+            actual.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_and_SessionId_and_Type()
+        {
+            var now = DateTime.Now;
+            _clock.Setup(x => x.UtcNow).Returns(now);
+            string subjectId = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_and_SessionId_and_Type)}-subjectId";
+            var expected = Enumerable.Range(0, 5).Select(x =>
+                new PersistedGrant
+                {
+                    Key = $"{nameof(GetAllAsync_Retrieves_All_Grants_For_SubjectId_and_ClientId_and_SessionId_and_Type)}-{now:O}-{x}",
+                    SubjectId = subjectId,
+                    Expiration = now.AddSeconds(2),
+                    ClientId = $"client{x}",
+                    SessionId = "session1",
+                    Type = "type1",
+                }
+            ).ToList();
+            Task.WaitAll(expected.Select(x => _store.StoreAsync(x)).ToArray());
+
+            var actual = (await _store.GetAllAsync(new IdentityServer4.Stores.PersistedGrantFilter { SubjectId = subjectId, ClientId = "client1", SessionId = "session1", Type = "type1" })).ToList();
+
+            Assert.NotNull(actual);
+            actual.Should().HaveCount(1);
+        }
+
+        [Fact]
         public async Task GetAllAsync_Does_Not_Retrieve_Expired_Grants()
         {
             var now = DateTime.Now;

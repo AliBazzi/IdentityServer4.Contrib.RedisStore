@@ -211,7 +211,10 @@ namespace IdentityServer4.Contrib.RedisStore.Stores
 
         protected bool IsMatch(PersistedGrant grant, PersistedGrantFilter filter)
         {
-            return grant.SubjectId == filter.SubjectId && grant.Type == filter.Type && grant.SessionId == filter.SessionId && grant.ClientId == filter.ClientId;
+            return (filter.SubjectId.IsNullOrEmpty() ? true : grant.SubjectId == filter.SubjectId)
+                && (filter.ClientId.IsNullOrEmpty() ? true : grant.ClientId == filter.ClientId)
+                && (filter.SessionId.IsNullOrEmpty() ? true : grant.SessionId == filter.SessionId)
+                && (filter.Type.IsNullOrEmpty() ? true : grant.Type == filter.Type);
         }
 
         #region Json
