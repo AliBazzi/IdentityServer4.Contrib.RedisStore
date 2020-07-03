@@ -1,20 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Description>Redis Store for operational data and for Caching of Identity Server 4</Description>
     <Authors>Ali Bazzi</Authors>
     <Company>Ali Bazzi</Company>
-    <AssemblyVersion>3.1.1</AssemblyVersion>
-    <PackageReleaseNotes>Add Caching predicate for ProfileServiceCaching, fixate StackExchange.Redis on 2.0.519.</PackageReleaseNotes>
-    <Version>3.1.1</Version>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <PackageReleaseNotes>Supports Identity Server 4 v4.</PackageReleaseNotes>
+    <Version>4.0.0</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
+    <PackageIcon>icon.jpg</PackageIcon>
     <PackageTags>Redis Store IdentityServer4</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Ali Bazzi</Copyright>
-    <FileVersion>3.1.1.0</FileVersion>
+    <FileVersion>4.0.0.0</FileVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -38,9 +39,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityServer4" Version="3.0.*" />
-    <PackageReference Include="IdentityServer4.Storage" Version="3.0.*" />
-    <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
+    <PackageReference Include="IdentityServer4" Version="4.0.0" />
+    <PackageReference Include="IdentityServer4.Storage" Version="4.0.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.1.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="icon.jpg" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
