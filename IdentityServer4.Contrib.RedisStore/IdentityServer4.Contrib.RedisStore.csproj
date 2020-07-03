@@ -8,7 +8,7 @@
     <Company>Ali Bazzi</Company>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <PackageReleaseNotes>Supports Identity Server 4 v4.</PackageReleaseNotes>
-    <Version>4.0.0-RC</Version>
+    <Version>4.0.0</Version>
     <PackageProjectUrl>https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore</PackageProjectUrl>
     <PackageIconUrl>https://identityserver.github.io/Documentation/assets/images/icons/IDserver_icon128.jpg</PackageIconUrl>
     <PackageIcon>icon.jpg</PackageIcon>
