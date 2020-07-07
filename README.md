@@ -1,3 +1,5 @@
+![.NET Core](https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore/workflows/.NET%20Core/badge.svg?branch=master)
+
 # IdentityServer4.Contrib.RedisStore
 
 IdentityServer4.Contrib.RedisStore is a persistence layer using [Redis](https://redis.io) DB for operational data and for caching capability for Identity Server 4. Specifically, this store provides implementation for [IPersistedGrantStore](http://docs.identityserver.io/en/release/topics/deployment.html#operational-data) and [ICache<T>](http://docs.identityserver.io/en/release/topics/startup.html#caching).
