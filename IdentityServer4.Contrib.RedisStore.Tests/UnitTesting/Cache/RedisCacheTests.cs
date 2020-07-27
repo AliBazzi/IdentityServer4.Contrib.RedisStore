@@ -59,7 +59,7 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Cache
             var actual = await _cache.GetAsync(key);
             Assert.Equal(expected, actual);
 
-            Thread.Sleep(1500);
+            Thread.Sleep(TimeSpan.FromSeconds(2));
 
             actual = await _cache.GetAsync(key);
 
