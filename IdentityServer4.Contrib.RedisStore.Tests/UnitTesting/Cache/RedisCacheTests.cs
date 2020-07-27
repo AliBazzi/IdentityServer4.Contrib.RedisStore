@@ -54,12 +54,12 @@ namespace IdentityServer4.Contrib.RedisStore.Tests.Cache
         {
             string key = nameof(GetAsync_Does_Not_Return_Expired_Entries);
             string expected = "test_value";
-            await _cache.SetAsync(key, expected, TimeSpan.FromSeconds(1));
+            await _cache.SetAsync(key, expected, TimeSpan.FromSeconds(2));
 
             var actual = await _cache.GetAsync(key);
             Assert.Equal(expected, actual);
 
-            Thread.Sleep(TimeSpan.FromSeconds(2));
+            Thread.Sleep(TimeSpan.FromSeconds(2.1));
 
             actual = await _cache.GetAsync(key);
 
