@@ -1,4 +1,4 @@
-![.NET Core](https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore/workflows/.NET%20Core/badge.svg?branch=master)
+![Automated tests](https://github.com/AliBazzi/IdentityServer4.Contrib.RedisStore/workflows/Automated%20tests/badge.svg)
 
 # IdentityServer4.Contrib.RedisStore
 
