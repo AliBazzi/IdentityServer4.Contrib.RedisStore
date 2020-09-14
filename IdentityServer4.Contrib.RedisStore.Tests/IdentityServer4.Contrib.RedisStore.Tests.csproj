@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.*" />
     <PackageReference Include="IdentityModel" Version="4.3.*" />
-    <PackageReference Include="IdentityServer4" Version="4.0.*" />
+    <PackageReference Include="IdentityServer4" Version="4.1.*" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.*" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.*" />
