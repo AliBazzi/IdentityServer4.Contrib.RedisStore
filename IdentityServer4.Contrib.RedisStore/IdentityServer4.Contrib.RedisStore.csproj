@@ -40,7 +40,7 @@
 
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="4.0.0" />
-    <PackageReference Include="IdentityServer4.Storage" Version="4.0.0" />
+    <PackageReference Include="IdentityServer4.Storage" Version="4.1.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.1.*" />
   </ItemGroup>
 
