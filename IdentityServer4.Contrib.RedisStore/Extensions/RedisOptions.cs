@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using StackExchange.Redis;
 
 namespace IdentityServer4.Contrib.RedisStore
@@ -8,6 +9,8 @@ namespace IdentityServer4.Contrib.RedisStore
     /// </summary>
     public abstract class RedisOptions
     {
+        private static object sync = new object();
+
         /// <summary>
         ///Configuration options objects for StackExchange.Redis Library.
         /// </summary>
@@ -27,19 +30,20 @@ namespace IdentityServer4.Contrib.RedisStore
         {
             get
             {
-                return this.multiplexer.Value;
+                return Multiplexer;
             }
             set
             {
+
                 // if someone already asked for the multiplexer before, we
                 // may have already connected using the connection string.
                 // in that case we must disconnect so we don't leak anything.
-                if (this.multiplexer.IsValueCreated && this.multiplexer.Value != this.providedMultiplexer)
+                if (this.multiplexer != null && this.multiplexer != this.providedMultiplexer)
                 {
-                    this.multiplexer.Value.Dispose();
-                    this.multiplexer = new Lazy<IConnectionMultiplexer>(() => value);
+                    this.multiplexer.Dispose();
                 }
 
+                this.multiplexer = value;
                 this.providedMultiplexer = value;
             }
         }
@@ -66,33 +70,28 @@ namespace IdentityServer4.Contrib.RedisStore
             }
         }
 
-        internal RedisOptions()
+        private IConnectionMultiplexer GetConnectionMultiplexer()
         {
-            this.multiplexer = GetConnectionMultiplexer();
-        }
-
-        private Lazy<IConnectionMultiplexer> GetConnectionMultiplexer()
-        {
-            return new Lazy<IConnectionMultiplexer>(
-                () =>
+            if (this.multiplexer == null)
+            {
+                lock (sync)
                 {
-                    // if the user provided a multiplexer, we should use it
-                    if (this.providedMultiplexer != null)
+                    if (this.multiplexer == null)
                     {
-                        return this.providedMultiplexer;
+                        this.multiplexer = string.IsNullOrEmpty(this.RedisConnectionString)
+                            ? ConnectionMultiplexer.Connect(this.ConfigurationOptions)
+                            : ConnectionMultiplexer.Connect(this.RedisConnectionString);
                     }
+                }
+            }
 
-                    // otherwise we must make our own connection
-                    return string.IsNullOrEmpty(this.RedisConnectionString)
-                        ? ConnectionMultiplexer.Connect(this.ConfigurationOptions)
-                        : ConnectionMultiplexer.Connect(this.RedisConnectionString);
-                });
+            return this.multiplexer;
         }
 
         private IConnectionMultiplexer providedMultiplexer = null;
-        private Lazy<IConnectionMultiplexer> multiplexer = null;
+        private IConnectionMultiplexer multiplexer = null;
 
-        internal IConnectionMultiplexer Multiplexer => this.multiplexer.Value;
+        internal IConnectionMultiplexer Multiplexer => GetConnectionMultiplexer();
     }
 
     /// <summary>
