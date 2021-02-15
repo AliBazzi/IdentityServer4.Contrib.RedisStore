@@ -20,7 +20,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.*" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.*" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.*" />
   </ItemGroup>
 
   <ItemGroup>
